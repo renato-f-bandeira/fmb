@@ -37,6 +37,11 @@ else:
     print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
 
 print("3. Buscando dados climáticos na API...")
+
+# --- A MÁGICA DA ALEATORIEDADE ---
+# Embaralha a ordem das cidades para evitar que as mesmas sofram com eventuais falhas
+gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
+
 gdf_pontos['Umidade_13h'] = 0.0
 gdf_pontos['DSC'] = 0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
@@ -57,11 +62,12 @@ for index, row in gdf_pontos.iterrows():
     if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
         print(f"  -> Já atualizado hoje! Usando cache local (Checkpoint).")
         memoria_cidade = historico_dict[nome_cidade]
-        gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade['Umidade_13h']
-        gdf_pontos.at[index, 'DSC'] = memoria_cidade['DSC']
-        gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade['Probabilidade_Fogo']
-        gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
-        gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
+        # Usando .get() de forma segura para não dar erro (KeyError) se o CSV antigo estiver incompleto
+        gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
+        gdf_pontos.at[index, 'DSC'] = memoria_cidade.get('DSC', 0)
+        gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
+        gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
+        gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade.get('Cor_Risco', '#bdc3c7')
         gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade.get('Data_Atualizacao', 'Dado Antigo')
         continue
     
@@ -72,8 +78,8 @@ for index, row in gdf_pontos.iterrows():
         try:
             response = requests.get(url, timeout=(5, 10))
             if response.status_code == 429:
-                print(f"  -> Limite da API atingido. Freando bruscamente por 15 segundos...")
-                time.sleep(15)
+                print(f"  -> Limite da API atingido. Freando bruscamente por 30 segundos...")
+                time.sleep(30)
                 continue
             response.raise_for_status() 
             dados = response.json()
@@ -126,15 +132,15 @@ for index, row in gdf_pontos.iterrows():
         
     else:
         print(f"⚠️ API falhou totalmente para {nome_cidade}. Buscando na memória de ontem...")
-        if nome_cidade in historico_dict:
-            print(f"  -> SUCESSO: Usando dados de ontem para {nome_cidade}.")
-        else:
+        if nome_cidade not in historico_dict:
             print(f"  -> SEM DADOS: A cidade {nome_cidade} não estava na memória.")
             historico_dict[nome_cidade] = {
                 'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
                 'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7',
                 'Data_Atualizacao': 'Falhou'
             }
+        else:
+            print(f"  -> SUCESSO: Usando dados de ontem para {nome_cidade}.")
 
     memoria_cidade = historico_dict[nome_cidade]
     gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
@@ -142,7 +148,6 @@ for index, row in gdf_pontos.iterrows():
     gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
     gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade.get('Cor_Risco', '#bdc3c7')
-    # O SEGREDO ESTÁ AQUI: Usa .get() para evitar o KeyError
     gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade.get('Data_Atualizacao', 'Dado Antigo')
     
     df_temp_historico = pd.DataFrame.from_dict(historico_dict, orient='index')
@@ -150,7 +155,8 @@ for index, row in gdf_pontos.iterrows():
     df_temp_historico.reset_index(inplace=True)
     df_temp_historico.to_csv(arquivo_historico, index=False)
     
-    time.sleep(1.0)
+    # Pausa estendida para garantir segurança (o script deve durar de 10 a 15min)
+    time.sleep(2.0)
 
 print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
 colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
