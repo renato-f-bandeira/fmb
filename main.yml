@@ -1,0 +1,35 @@
+name: Atualiza Mapa de Risco Diário
+
+on:
+  schedule:
+    # Roda todos os dias às 09h00 da manhã (Horário de Brasília) / 12h00 UTC
+    - cron: '0 12 * * *' 
+  workflow_dispatch: # Adiciona um botão para podermos rodar manualmente quando quisermos
+
+jobs:
+  atualizar_mapa:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Clonar o repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar o Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: 3. Instalar bibliotecas necessárias
+        run: |
+          pip install -r requirements.txt
+
+      - name: 4. Executar o seu script Mata Branca
+        run: python gerar_mapa_risco.py
+
+      - name: 5. Salvar o novo mapa de volta no repositório
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add dashboard_operacional.html
+          git commit -m "Atualiza dashboard diário [skip ci]" || echo "Nenhuma mudança para salvar hoje"
+          git push
