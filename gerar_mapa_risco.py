@@ -29,7 +29,7 @@ else:
     historico_dict = {}
     print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
 
-print("3. Buscando dados climáticos na API com Retentativas e Fallback...")
+print("3. Buscando dados climáticos na API com Retentativas Exponenciais e Fallback...")
 gdf_pontos['Umidade_13h'] = 0.0
 gdf_pontos['DSC'] = 0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
@@ -50,13 +50,22 @@ for index, row in gdf_pontos.iterrows():
     for tentativa in range(3):
         try:
             response = requests.get(url, timeout=10)
+            
+            # Se o servidor responder "Erro 429 - Limite de Taxa", forçamos uma pausa longa
+            if response.status_code == 429:
+                print(f"  -> Limite da API atingido. Freando bruscamente por 15 segundos...")
+                time.sleep(15)
+                continue
+                
             response.raise_for_status() 
             dados = response.json()
             sucesso = True
             break
         except Exception as e:
-            print(f"  -> Falha na tentativa {tentativa + 1}. Aguardando 3s...")
-            time.sleep(3)
+            # Espera Exponencial: 1ª vez espera 5s, 2ª espera 10s, 3ª espera 15s
+            tempo_espera = (tentativa + 1) * 5
+            print(f"  -> Falha na tentativa {tentativa + 1}. Aguardando {tempo_espera}s para o servidor respirar...")
+            time.sleep(tempo_espera)
             
     if sucesso:
         # A. UMIDADE DE HOJE
@@ -120,7 +129,8 @@ for index, row in gdf_pontos.iterrows():
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
     gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
     
-    time.sleep(0.5)
+    # Pausa maior entre cidades para não esvaziar o "balde de fichas" da API tão rápido
+    time.sleep(1.5)
 
 print("4. Salvando o arquivo de memória (CSV) para uso de amanhã...")
 df_novo_historico = pd.DataFrame.from_dict(historico_dict, orient='index')
