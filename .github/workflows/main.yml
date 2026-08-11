@@ -2,9 +2,9 @@ name: Atualiza Mapa de Risco Diário
 
 on:
   schedule:
-    # Roda todos os dias às 09h00 da manhã (Horário de Brasília) / 12h00 UTC
-    - cron: '0 12 * * *' 
-  workflow_dispatch: # Adiciona um botão para podermos rodar manualmente quando quisermos
+    # Roda todos os dias às 01h00 da manhã (Horário de Brasília) / 04h00 UTC
+    - cron: '0 4 * * *' 
+  workflow_dispatch: # Mantém o botão para rodarmos manualmente quando quisermos
 
 jobs:
   atualizar_mapa:
@@ -24,7 +24,7 @@ jobs:
           pip install -r requirements.txt
 
       - name: 4. Executar o seu script Mata Branca
-        run: python gerar_mapa_risco.py
+        run: python -u gerar_mapa_risco.py
 
       - name: 5. Salvar o novo mapa de volta no repositório
         run: |
