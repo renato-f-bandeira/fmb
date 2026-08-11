@@ -6,8 +6,15 @@ import requests
 import math
 import time
 import folium
+import pytz
 from folium.features import GeoJsonTooltip
 from datetime import datetime
+
+# --- CONFIGURAÇÃO DE TEMPO (FUSO DE BRASÍLIA) ---
+fuso_br = pytz.timezone('America/Sao_Paulo')
+agora_br = datetime.now(fuso_br)
+data_hoje_str = agora_br.strftime('%d/%m/%Y')
+hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
 print("1. Carregando as camadas do GeoPackage da Paraíba...")
 gdf_poligonos = gpd.read_file('municipios_PB.gpkg', layer='lml_municipio_pb')
@@ -35,9 +42,9 @@ gdf_pontos['DSC'] = 0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
 gdf_pontos['Classe_Risco'] = ''
 gdf_pontos['Cor_Risco'] = ''
+gdf_pontos['Data_Atualizacao'] = ''
 
 total_municipios = len(gdf_pontos)
-data_hoje_str = datetime.now().strftime('%Y-%m-%d')
 
 for index, row in gdf_pontos.iterrows():
     lat = row['lat']
@@ -57,6 +64,7 @@ for index, row in gdf_pontos.iterrows():
         gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade['Probabilidade_Fogo']
         gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
         gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
+        gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade['Data_Atualizacao']
         continue
     # -------------------------------------------------------------
     
@@ -85,10 +93,11 @@ for index, row in gdf_pontos.iterrows():
     if sucesso:
         horas = dados['hourly']['time']
         umidades = dados['hourly']['relative_humidity_2m']
-        hoje_str_hora = data_hoje_str + "T13:00"
+        # Converte a data de hoje para o formato que a API responde (YYYY-MM-DD)
+        hoje_str_api = agora_br.strftime('%Y-%m-%d') + "T13:00"
         
-        if hoje_str_hora in horas:
-            idx_13h = horas.index(hoje_str_hora)
+        if hoje_str_api in horas:
+            idx_13h = horas.index(hoje_str_api)
             umidade_hoje = umidades[idx_13h]
         else:
             umidade_hoje = np.nanmean(umidades[-12:-6])
@@ -140,6 +149,7 @@ for index, row in gdf_pontos.iterrows():
     gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade['Probabilidade_Fogo']
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
     gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
+    gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade['Data_Atualizacao']
     
     # Salva o checkpoint imediatamente
     df_temp_historico = pd.DataFrame.from_dict(historico_dict, orient='index')
@@ -150,20 +160,27 @@ for index, row in gdf_pontos.iterrows():
     time.sleep(1.0)
 
 print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
-colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco']
+colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
 gdf_final = gdf_poligonos.merge(df_resultados_pontos, on='nome', how='left')
 
 gdf_final['Cor_Risco'] = gdf_final.get('Cor_Risco', pd.Series(['#bdc3c7']*len(gdf_final))).fillna('#bdc3c7')
 gdf_final['Classe_Risco'] = gdf_final.get('Classe_Risco', pd.Series(['Sem Dados']*len(gdf_final))).fillna('Sem Dados')
+gdf_final['Data_Atualizacao'] = gdf_final.get('Data_Atualizacao', pd.Series(['Desconhecido']*len(gdf_final))).fillna('Desconhecido')
 
-print("5. Preparando o Mapa Interativo...")
-mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles='OpenStreetMap')
+print("5. Preparando o Mapa Interativo (Modos de Visualização)...")
+# Cria o mapa sem um tema fixo para podermos adicionar os nossos
+mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles=None)
+
+# Adiciona as camadas (O primeiro adicionado será o padrão ao abrir)
+folium.TileLayer('cartodbdark_matter', name="Modo Noturno (Padrão)").add_to(mapa_pb)
+folium.TileLayer('cartodbpositron', name="Modo Claro").add_to(mapa_pb)
+folium.TileLayer('OpenStreetMap', name="Ruas e Satélite (OSM)").add_to(mapa_pb)
 
 tooltip = GeoJsonTooltip(
-    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h'],
-    aliases=['Município:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade às 13h (%):'],
+    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h', 'Data_Atualizacao'],
+    aliases=['Município:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade às 13h (%):', 'Última Atualização:'],
     localize=True,
     sticky=False,
     labels=True,
@@ -175,28 +192,47 @@ camada_municipios = folium.GeoJson(
     name='Municípios - Risco de Fogo',
     style_function=lambda feature: {
         'fillColor': feature['properties'].get('Cor_Risco', '#bdc3c7'),
-        'color': 'black',
+        'color': '#333333', # Borda escura suave no padrão
         'weight': 1,
-        'fillOpacity': 0.7
+        'fillOpacity': 0.75
+    },
+    # --- DESTAQUE TIPO QGIS (Borda grossa amarela ao passar o mouse/selecionar) ---
+    highlight_function=lambda feature: {
+        'color': '#f1c40f',
+        'weight': 4,
+        'fillOpacity': 0.9
     },
     tooltip=tooltip
 ).add_to(mapa_pb)
 
+# Controle para alternar entre Modo Noturno e Claro
 folium.LayerControl().add_to(mapa_pb)
 mapa_html = mapa_pb._repr_html_()
 
 print("6. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
 top_10 = gdf_final.sort_values(by='Probabilidade_Fogo', ascending=False).head(10)
 
-tabela_html = top_10[['nome', 'Probabilidade_Fogo', 'Classe_Risco']].to_html(
+# Renomeia as colunas para a exibição na tabela ficar profissional
+top_10_display = top_10.rename(columns={
+    'nome': 'Município', 
+    'Probabilidade_Fogo': 'Risco (%)', 
+    'Classe_Risco': 'Classe'
+})
+
+tabela_html = top_10_display[['Município', 'Risco (%)', 'Classe']].to_html(
     index=False, 
-    classes='table table-striped table-hover table-sm',
+    classes='table table-striped table-hover table-sm text-start',
     header=True
 )
 
+# Correções visuais na tabela HTML usando manipulação de string (Alinhamento e Destaques em Negrito)
+tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
+tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #8e44ad; font-weight: bold; font-size: 1.1em;">6. Crítico 🚨</span>')
+tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #c0392b; font-weight: bold;">5. Muito Alto</span>')
+
 pagina_completa = f"""
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
     <title>Painel de Risco - Índice Mata Branca</title>
@@ -205,21 +241,23 @@ pagina_completa = f"""
         body, html {{ height: 100%; margin: 0; padding: 0; }}
         .container-fluid {{ height: 100vh; }}
         .row {{ height: 100%; }}
-        .sidebar {{ background-color: #f8f9fa; padding: 20px; overflow-y: auto; height: 100%; }}
+        .sidebar {{ background-color: #f8f9fa; padding: 20px; overflow-y: auto; height: 100%; border-right: 2px solid #ddd; }}
         .map-container {{ padding: 0; height: 100%; }}
+        /* Força todas as células da tabela a alinharem à esquerda */
+        .table th, .table td {{ text-align: left !important; vertical-align: middle; }}
     </style>
 </head>
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-3 sidebar shadow">
-                <h4 class="mb-4 text-danger fw-bold">🔥 Índice Mata Branca</h4>
-                <p class="text-muted small">Atualizado em: {datetime.now().strftime('%d/%m/%Y %H:%M')}</p>
+            <div class="col-md-3 sidebar shadow-sm">
+                <h4 class="mb-3 text-danger fw-bold">🔥 Índice Mata Branca</h4>
+                <p class="text-muted small mb-4">Atualizado em: {hora_exibicao} (Horário de Brasília)</p>
                 <hr>
-                <h6 class="fw-bold mb-3">⚠️ Top 10 Cidades em Risco</h6>
+                <h6 class="fw-bold mb-3 text-dark">⚠️ Top 10 Cidades em Risco</h6>
                 {tabela_html}
                 <hr>
-                <p class="small text-muted mt-3">Metodologia: Equação de Regressão Logística baseada em Umidade Relativa e Dias Sem Chuva (DSC). <br><strong>Recomendado para uso operacional pela Defesa Civil da Paraíba.</strong></p>
+                <p class="small text-muted mt-3">Metodologia: Equação de Regressão Logística baseada em Umidade Relativa e Dias Sem Chuva (DSC). <br><br><strong>Recomendado para uso tático pelo Corpo de Bombeiros da Paraíba.</strong></p>
             </div>
             <div class="col-md-9 map-container">
                 {mapa_html}
