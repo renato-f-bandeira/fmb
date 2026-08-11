@@ -19,7 +19,7 @@ gdf_pontos = gdf_pontos.to_crs(epsg=4326)
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
-print("2. Carregando histórico anterior (Sistema de Memória/Fallback)...")
+print("2. Carregando histórico anterior (Sistema de Checkpoint Inteligente)...")
 arquivo_historico = 'historico_risco.csv'
 if os.path.exists(arquivo_historico):
     df_historico = pd.read_csv(arquivo_historico)
@@ -29,7 +29,7 @@ else:
     historico_dict = {}
     print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
 
-print("3. Buscando dados climáticos na API com Retentativas Exponenciais e Fallback...")
+print("3. Buscando dados climáticos na API...")
 gdf_pontos['Umidade_13h'] = 0.0
 gdf_pontos['DSC'] = 0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
@@ -37,6 +37,7 @@ gdf_pontos['Classe_Risco'] = ''
 gdf_pontos['Cor_Risco'] = ''
 
 total_municipios = len(gdf_pontos)
+data_hoje_str = datetime.now().strftime('%Y-%m-%d')
 
 for index, row in gdf_pontos.iterrows():
     lat = row['lat']
@@ -44,14 +45,29 @@ for index, row in gdf_pontos.iterrows():
     nome_cidade = row.get('nome', f'Cidade_{index}')
     
     print(f"Processando [{index + 1}/{total_municipios}]: {nome_cidade}...")
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=relative_humidity_2m&daily=precipitation_sum&past_days=90&forecast_days=1&timezone=America%2FSao_Paulo"
+    
+    # -------------------------------------------------------------
+    # CACHE INTELIGENTE: Pula se já processou com sucesso hoje
+    # -------------------------------------------------------------
+    if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
+        print(f"  -> Já atualizado hoje! Usando cache local (Checkpoint).")
+        memoria_cidade = historico_dict[nome_cidade]
+        gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade['Umidade_13h']
+        gdf_pontos.at[index, 'DSC'] = memoria_cidade['DSC']
+        gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade['Probabilidade_Fogo']
+        gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
+        gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
+        continue
+    # -------------------------------------------------------------
+    
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=relative_humidity_2m&daily=precipitation_sum&past_days=45&forecast_days=1&timezone=America%2FSao_Paulo"
     
     sucesso = False
     for tentativa in range(3):
         try:
-            response = requests.get(url, timeout=10)
+            # Timeout Duplo: 5s conectar, 10s ler
+            response = requests.get(url, timeout=(5, 10))
             
-            # Se o servidor responder "Erro 429 - Limite de Taxa", forçamos uma pausa longa
             if response.status_code == 429:
                 print(f"  -> Limite da API atingido. Freando bruscamente por 15 segundos...")
                 time.sleep(15)
@@ -62,24 +78,21 @@ for index, row in gdf_pontos.iterrows():
             sucesso = True
             break
         except Exception as e:
-            # Espera Exponencial: 1ª vez espera 5s, 2ª espera 10s, 3ª espera 15s
             tempo_espera = (tentativa + 1) * 5
-            print(f"  -> Falha na tentativa {tentativa + 1}. Aguardando {tempo_espera}s para o servidor respirar...")
+            print(f"  -> Falha de conexão. Aguardando {tempo_espera}s para tentar de novo...")
             time.sleep(tempo_espera)
             
     if sucesso:
-        # A. UMIDADE DE HOJE
         horas = dados['hourly']['time']
         umidades = dados['hourly']['relative_humidity_2m']
-        hoje_str = datetime.now().strftime('%Y-%m-%d') + "T13:00"
+        hoje_str_hora = data_hoje_str + "T13:00"
         
-        if hoje_str in horas:
-            idx_13h = horas.index(hoje_str)
+        if hoje_str_hora in horas:
+            idx_13h = horas.index(hoje_str_hora)
             umidade_hoje = umidades[idx_13h]
         else:
             umidade_hoje = np.nanmean(umidades[-12:-6])
             
-        # B. DIAS SEM CHUVA (DSC)
         chuvas_diarias = dados['daily']['precipitation_sum']
         chuvas_passado = chuvas_diarias[:-1] 
         
@@ -90,7 +103,6 @@ for index, row in gdf_pontos.iterrows():
             else:
                 break
                 
-        # C. EQUAÇÃO MATA BRANCA
         Z = 1.4285 - (0.1244 * umidade_hoje) + (0.0072 * dsc)
         probabilidade = (1 / (1 + math.exp(-Z))) * 100
         
@@ -101,13 +113,13 @@ for index, row in gdf_pontos.iterrows():
         elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#c0392b'
         else: classe, cor = '6. Crítico', '#8e44ad'
 
-        # Guarda os dados novos na memória para o futuro
         historico_dict[nome_cidade] = {
             'Umidade_13h': umidade_hoje,
             'DSC': dsc,
             'Probabilidade_Fogo': round(probabilidade, 1),
             'Classe_Risco': classe,
-            'Cor_Risco': cor
+            'Cor_Risco': cor,
+            'Data_Atualizacao': data_hoje_str
         }
         
     else:
@@ -118,10 +130,10 @@ for index, row in gdf_pontos.iterrows():
             print(f"  -> SEM DADOS: A cidade {nome_cidade} não estava na memória.")
             historico_dict[nome_cidade] = {
                 'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
-                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7'
+                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7',
+                'Data_Atualizacao': 'Falhou'
             }
 
-    # Aplica os dados (seja da API ou da Memória) na tabela do mapa
     memoria_cidade = historico_dict[nome_cidade]
     gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade['Umidade_13h']
     gdf_pontos.at[index, 'DSC'] = memoria_cidade['DSC']
@@ -129,16 +141,15 @@ for index, row in gdf_pontos.iterrows():
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade['Classe_Risco']
     gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade['Cor_Risco']
     
-    # Pausa maior entre cidades para não esvaziar o "balde de fichas" da API tão rápido
-    time.sleep(1.5)
+    # Salva o checkpoint imediatamente
+    df_temp_historico = pd.DataFrame.from_dict(historico_dict, orient='index')
+    df_temp_historico.index.name = 'nome'
+    df_temp_historico.reset_index(inplace=True)
+    df_temp_historico.to_csv(arquivo_historico, index=False)
+    
+    time.sleep(1.0)
 
-print("4. Salvando o arquivo de memória (CSV) para uso de amanhã...")
-df_novo_historico = pd.DataFrame.from_dict(historico_dict, orient='index')
-df_novo_historico.index.name = 'nome'
-df_novo_historico.reset_index(inplace=True)
-df_novo_historico.to_csv(arquivo_historico, index=False)
-
-print("5. Unindo os resultados matemáticos aos polígonos do mapa...")
+print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
 colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
@@ -147,7 +158,7 @@ gdf_final = gdf_poligonos.merge(df_resultados_pontos, on='nome', how='left')
 gdf_final['Cor_Risco'] = gdf_final.get('Cor_Risco', pd.Series(['#bdc3c7']*len(gdf_final))).fillna('#bdc3c7')
 gdf_final['Classe_Risco'] = gdf_final.get('Classe_Risco', pd.Series(['Sem Dados']*len(gdf_final))).fillna('Sem Dados')
 
-print("6. Preparando o Mapa Interativo...")
+print("5. Preparando o Mapa Interativo...")
 mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles='OpenStreetMap')
 
 tooltip = GeoJsonTooltip(
@@ -174,7 +185,7 @@ camada_municipios = folium.GeoJson(
 folium.LayerControl().add_to(mapa_pb)
 mapa_html = mapa_pb._repr_html_()
 
-print("7. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
+print("6. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
 top_10 = gdf_final.sort_values(by='Probabilidade_Fogo', ascending=False).head(10)
 
 tabela_html = top_10[['nome', 'Probabilidade_Fogo', 'Classe_Risco']].to_html(
