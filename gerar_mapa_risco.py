@@ -6,6 +6,7 @@ import math
 import folium
 from folium.features import GeoJsonTooltip
 from datetime import datetime
+import time
 
 print("1. Carregando as camadas do GeoPackage da Paraíba...")
 # Lendo a camada de POLÍGONOS (para desenhar o mapa)
@@ -20,23 +21,31 @@ gdf_pontos = gdf_pontos.to_crs(epsg=4326)
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
-print("2. Buscando dados climáticos na API Open-Meteo e calculando o Índice Mata Branca...")
-# Criando colunas vazias na camada de pontos para guardar os resultados
+print("2. Buscando dados climáticos na API e calculando o Índice Mata Branca...")
 gdf_pontos['Umidade_13h'] = 0.0
 gdf_pontos['DSC'] = 0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
 gdf_pontos['Classe_Risco'] = ''
 gdf_pontos['Cor_Risco'] = ''
 
+total_municipios = len(gdf_pontos)
+
 for index, row in gdf_pontos.iterrows():
     lat = row['lat']
     lon = row['lon']
+    nome_cidade = row.get('NM_MUN', f'Cidade {index}')
     
-    # URL da API Open-Meteo: Traz a chuva dos últimos 60 dias e a umidade de hoje
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=relative_humidity_2m&daily=precipitation_sum&past_days=60&forecast_days=1&timezone=America%2FSao_Paulo"
+    print(f"Processando [{index + 1}/{total_municipios}]: {nome_cidade}...")
+    
+    # URL com past_days=90 para garantir captura de secas longas na Caatinga
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=relative_humidity_2m&daily=precipitation_sum&past_days=90&forecast_days=1&timezone=America%2FSao_Paulo"
     
     try:
-        response = requests.get(url)
+        # Timeout de 10 segundos: se o servidor travar, o Python não fica preso para sempre
+        response = requests.get(url, timeout=10)
+        
+        # Se a API der algum erro (como limite de acessos), ele avisa
+        response.raise_for_status() 
         dados = response.json()
         
         # --- A. ENCONTRAR A UMIDADE ÀS 13H DE HOJE ---
@@ -66,21 +75,19 @@ for index, row in gdf_pontos.iterrows():
         Z = 1.4285 - (0.1244 * umidade_hoje) + (0.0072 * dsc)
         probabilidade = (1 / (1 + math.exp(-Z))) * 100
         
-        # Determinar a Classe e a Cor
         if probabilidade < 5.0:
-            classe, cor = '1. Nulo', '#27ae60' # Verde
+            classe, cor = '1. Nulo', '#27ae60' 
         elif probabilidade < 10.0:
-            classe, cor = '2. Baixo', '#f1c40f' # Amarelo
+            classe, cor = '2. Baixo', '#f1c40f'
         elif probabilidade < 14.0:
-            classe, cor = '3. Moderado', '#e67e22' # Laranja
+            classe, cor = '3. Moderado', '#e67e22'
         elif probabilidade < 20.0:
-            classe, cor = '4. Alto (Alerta)', '#e74c3c' # Vermelho
+            classe, cor = '4. Alto (Alerta)', '#e74c3c'
         elif probabilidade < 30.0:
-            classe, cor = '5. Muito Alto', '#c0392b' # Vinho
+            classe, cor = '5. Muito Alto', '#c0392b'
         else:
-            classe, cor = '6. Crítico', '#8e44ad' # Roxo
+            classe, cor = '6. Crítico', '#8e44ad'
 
-        # Salva no DataFrame de PONTOS
         gdf_pontos.at[index, 'Umidade_13h'] = umidade_hoje
         gdf_pontos.at[index, 'DSC'] = dsc
         gdf_pontos.at[index, 'Probabilidade_Fogo'] = round(probabilidade, 1)
@@ -88,8 +95,13 @@ for index, row in gdf_pontos.iterrows():
         gdf_pontos.at[index, 'Cor_Risco'] = cor
 
     except Exception as e:
-        # Troque 'NM_MUN' abaixo se a sua coluna de nome tiver outro título
-        print(f"Erro ao buscar dados para {row.get('NM_MUN', 'Município Desconhecido')}: {e}")
+        print(f"⚠️ Erro ao buscar dados para {nome_cidade}: {e}")
+        # Preenche com dados nulos para não quebrar o mapa
+        gdf_pontos.at[index, 'Classe_Risco'] = 'Sem Dados'
+        gdf_pontos.at[index, 'Cor_Risco'] = '#bdc3c7' # Cinza
+
+    # A mágica de segurança: pausa de 0.3 segundos para a API não nos bloquear
+    time.sleep(0.3)
 
 print("3. Unindo os resultados matemáticos aos polígonos do mapa...")
 # Vamos cruzar (merge) os dados calculados nos pontos com a geometria dos polígonos
