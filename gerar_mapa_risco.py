@@ -17,12 +17,21 @@ data_hoje_str = agora_br.strftime('%d/%m/%Y')
 hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
 print("1. Carregando as camadas do GeoPackage da Paraíba...")
+# Camadas originais
 gdf_poligonos = gpd.read_file('municipios_PB.gpkg', layer='lml_municipio_pb')
 gdf_poligonos = gdf_poligonos.to_crs(epsg=4326)
 
 gdf_pontos = gpd.read_file('municipios_PB.gpkg', layer='pontos_centroides_municipios')
 gdf_pontos = gdf_pontos.to_crs(epsg=4326)
 
+# Novas camadas
+gdf_estado = gpd.read_file('municipios_PB.gpkg', layer='lml_estado')
+gdf_estado = gdf_estado.to_crs(epsg=4326)
+
+gdf_uc = gpd.read_file('municipios_PB.gpkg', layer='uc_BR')
+gdf_uc = gdf_uc.to_crs(epsg=4326)
+
+# Extração de coordenadas dos pontos
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
@@ -37,9 +46,7 @@ else:
     print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
 
 print("3. Buscando dados climáticos na API...")
-
-# --- A MÁGICA DA ALEATORIEDADE ---
-# Embaralha a ordem das cidades para evitar que as mesmas sofram com eventuais falhas
+# Embaralha a ordem das cidades para evitar que as mesmas sofram com eventuais falhas da API
 gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
 
 gdf_pontos['Umidade_13h'] = 0.0
@@ -58,11 +65,10 @@ for index, row in gdf_pontos.iterrows():
     
     print(f"Processando [{index + 1}/{total_municipios}]: {nome_cidade}...")
     
-    # CACHE INTELIGENTE: Pula se já processou com sucesso hoje
+    # CACHE INTELIGENTE
     if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
         print(f"  -> Já atualizado hoje! Usando cache local (Checkpoint).")
         memoria_cidade = historico_dict[nome_cidade]
-        # Usando .get() de forma segura para não dar erro (KeyError) se o CSV antigo estiver incompleto
         gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
         gdf_pontos.at[index, 'DSC'] = memoria_cidade.get('DSC', 0)
         gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
@@ -131,16 +137,15 @@ for index, row in gdf_pontos.iterrows():
         }
         
     else:
-        print(f"⚠️ API falhou totalmente para {nome_cidade}. Buscando na memória de ontem...")
+        print(f"⚠️ API falhou para {nome_cidade}. Buscando na memória...")
         if nome_cidade not in historico_dict:
-            print(f"  -> SEM DADOS: A cidade {nome_cidade} não estava na memória.")
+            print(f"  -> SEM DADOS: A cidade não estava na memória.")
             historico_dict[nome_cidade] = {
                 'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
-                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7',
-                'Data_Atualizacao': 'Falhou'
+                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7', 'Data_Atualizacao': 'Falhou'
             }
         else:
-            print(f"  -> SUCESSO: Usando dados de ontem para {nome_cidade}.")
+            print(f"  -> SUCESSO: Usando dados antigos.")
 
     memoria_cidade = historico_dict[nome_cidade]
     gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
@@ -155,7 +160,6 @@ for index, row in gdf_pontos.iterrows():
     df_temp_historico.reset_index(inplace=True)
     df_temp_historico.to_csv(arquivo_historico, index=False)
     
-    # Pausa estendida para garantir segurança (o script deve durar de 10 a 15min)
     time.sleep(2.0)
 
 print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
@@ -163,28 +167,39 @@ colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Class
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
 gdf_final = gdf_poligonos.merge(df_resultados_pontos, on='nome', how='left')
-
 gdf_final['Cor_Risco'] = gdf_final.get('Cor_Risco', pd.Series(['#bdc3c7']*len(gdf_final))).fillna('#bdc3c7')
 gdf_final['Classe_Risco'] = gdf_final.get('Classe_Risco', pd.Series(['Sem Dados']*len(gdf_final))).fillna('Sem Dados')
 gdf_final['Data_Atualizacao'] = gdf_final.get('Data_Atualizacao', pd.Series(['Desconhecido']*len(gdf_final))).fillna('Desconhecido')
 
-print("5. Preparando o Mapa Interativo (Modos de Visualização)...")
+print("5. Preparando o Mapa Interativo com as Novas Camadas...")
 mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles=None)
 
+# 5.1 Adicionando Mapas Base
 folium.TileLayer('cartodbdark_matter', name="Modo Noturno (Padrão)").add_to(mapa_pb)
 folium.TileLayer('cartodbpositron', name="Modo Claro").add_to(mapa_pb)
 folium.TileLayer('OpenStreetMap', name="Ruas e Satélite (OSM)").add_to(mapa_pb)
 
-tooltip = GeoJsonTooltip(
+# 5.2 Camada de Limite do Estado (Apenas Contorno Fundo)
+folium.GeoJson(
+    gdf_estado,
+    name='Limite Estadual (PB)',
+    style_function=lambda x: {
+        'color': '#000000', # Contorno Preto
+        'weight': 3,        # Borda um pouco mais grossa para destacar
+        'fillOpacity': 0    # Interior totalmente transparente
+    },
+    interactive=False # Desativa cliques na borda do estado
+).add_to(mapa_pb)
+
+# 5.3 Camada dos Municípios (Com interatividade)
+tooltip_mun = GeoJsonTooltip(
     fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h', 'Data_Atualizacao'],
     aliases=['Município:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade às 13h (%):', 'Última Atualização:'],
-    localize=True,
-    sticky=False,
-    labels=True,
+    localize=True, sticky=False, labels=True,
     style="background-color: #F0EFEF; border: 2px solid black; border-radius: 3px; box-shadow: 3px;"
 )
 
-camada_municipios = folium.GeoJson(
+folium.GeoJson(
     gdf_final,
     name='Municípios - Risco de Fogo',
     style_function=lambda feature: {
@@ -198,10 +213,42 @@ camada_municipios = folium.GeoJson(
         'weight': 4,
         'fillOpacity': 0.9
     },
-    tooltip=tooltip
+    tooltip=tooltip_mun
 ).add_to(mapa_pb)
 
-folium.LayerControl().add_to(mapa_pb)
+# 5.4 Camada de Unidades de Conservação (uc_BR) - Apenas Contorno Diferenciado
+def estilo_uc(feature):
+    esfera = feature['properties'].get('esfera', '')
+    # Define as cores baseadas na esfera de gestão
+    cor_contorno = '#ffffff' # Branco padrão caso não tenha esfera
+    if esfera == 'Federal': cor_contorno = '#e74c3c'      # Vermelho
+    elif esfera == 'Estadual': cor_contorno = '#3498db'   # Azul
+    elif esfera == 'Municipal': cor_contorno = '#e67e22'  # Laranja
+    
+    return {
+        'color': cor_contorno,
+        'weight': 2.5,
+        'fillOpacity': 0, # Apenas contorno, nada de preenchimento
+        'dashArray': '4, 4' # Faz o traço ser pontilhado para diferenciar das cidades
+    }
+
+tooltip_uc = GeoJsonTooltip(
+    fields=['nome_uc', 'esfera', 'categoria'],
+    aliases=['Unidade de Conservação:', 'Esfera de Gestão:', 'Categoria:'],
+    localize=True, sticky=False, labels=True,
+    style="background-color: #2c3e50; color: #ecf0f1; border: 1px solid white; border-radius: 3px;"
+)
+
+folium.GeoJson(
+    gdf_uc,
+    name='Unidades de Conservação (UC)',
+    style_function=estilo_uc,
+    tooltip=tooltip_uc,
+    show=True # Deixa ativado por padrão
+).add_to(mapa_pb)
+
+# Botão Controlador de Camadas no canto superior direito
+folium.LayerControl(collapsed=False).add_to(mapa_pb)
 mapa_html = mapa_pb._repr_html_()
 
 print("6. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
@@ -250,6 +297,13 @@ pagina_completa = f"""
                 {tabela_html}
                 <hr>
                 <p class="small text-muted mt-3">Metodologia: Equação de Regressão Logística baseada em Umidade Relativa e Dias Sem Chuva (DSC). <br><br><strong>Recomendado para uso tático pelo Corpo de Bombeiros da Paraíba.</strong></p>
+                
+                <h6 class="fw-bold mt-4 text-dark">🗺️ Legenda Adicional (UCs)</h6>
+                <ul class="small text-muted" style="list-style-type: none; padding-left: 0;">
+                    <li><span style="color: #e74c3c; font-weight: bold;">---</span> UC Federal</li>
+                    <li><span style="color: #3498db; font-weight: bold;">---</span> UC Estadual</li>
+                    <li><span style="color: #e67e22; font-weight: bold;">---</span> UC Municipal</li>
+                </ul>
             </div>
             <div class="col-md-9 map-container">
                 {mapa_html}
