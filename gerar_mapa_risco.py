@@ -127,12 +127,12 @@ for index, row in gdf_pontos.iterrows():
         Z = 1.4285 - (0.1244 * umidade_hoje) + (0.0072 * dsc)
         probabilidade = (1 / (1 + math.exp(-Z))) * 100
         
-        if probabilidade < 5.0: classe, cor = '1. Nulo', '#27ae60' 
-        elif probabilidade < 10.0: classe, cor = '2. Baixo', '#f1c40f'
-        elif probabilidade < 14.0: classe, cor = '3. Moderado', '#e67e22'
-        elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#e74c3c'
-        elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#c0392b'
-        else: classe, cor = '6. Crítico', '#8e44ad'
+        if probabilidade < 5.0: classe, cor = '1. Nulo', '#A1A1A1' 
+        elif probabilidade < 10.0: classe, cor = '2. Baixo', '#C0C276'
+        elif probabilidade < 14.0: classe, cor = '3. Moderado', '#E8A523'
+        elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
+        elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#E80527'
+        else: classe, cor = '6. Crítico', '#96002D'
 
         historico_dict[nome_cidade] = {
             'Umidade_13h': umidade_hoje,
@@ -149,7 +149,7 @@ for index, row in gdf_pontos.iterrows():
             print(f"  -> SEM DADOS: A cidade não estava na memória.")
             historico_dict[nome_cidade] = {
                 'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
-                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#bdc3c7', 'Data_Atualizacao': 'Falhou'
+                'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#C7C7C7', 'Data_Atualizacao': 'Falhou'
             }
         else:
             print(f"  -> SUCESSO: Usando dados antigos.")
@@ -228,9 +228,9 @@ def estilo_uc(feature):
     esfera = feature['properties'].get('esfera', '')
     # Define as cores baseadas na esfera de gestão
     cor_contorno = '#ffffff' # Branco padrão caso não tenha esfera
-    if esfera == 'Federal': cor_contorno = '#e74c3c'      # Vermelho
-    elif esfera == 'Estadual': cor_contorno = '#3498db'   # Azul
-    elif esfera == 'Municipal': cor_contorno = '#e67e22'  # Laranja
+    if esfera == 'Federal': cor_contorno = '#005200'      # Verde Escuro
+    elif esfera == 'Estadual': cor_contorno = '#1B7A1B'   # Verde Claro
+    elif esfera == 'Municipal': cor_contorno = '#179983'  # Verde Azulado
     
     return {
         'color': cor_contorno,
@@ -251,7 +251,7 @@ folium.GeoJson(
     name='Unidades de Conservação (UC)',
     style_function=estilo_uc,
     tooltip=tooltip_uc,
-    show=True # Deixa ativado por padrão
+    show=False # <-- ALTERAÇÃO AQUI: Deixa a camada desligada por padrão
 ).add_to(mapa_pb)
 
 # Botão Controlador de Camadas no canto superior direito
@@ -274,8 +274,8 @@ tabela_html = top_10_display[['Município', 'Risco (%)', 'Classe']].to_html(
 )
 
 tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
-tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #8e44ad; font-weight: bold; font-size: 1.1em;">6. Crítico 🚨</span>')
-tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #c0392b; font-weight: bold;">5. Muito Alto</span>')
+tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Crítico 🚨</span>')
+tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #B02719; font-weight: bold;">5. Muito Alto</span>')
 
 pagina_completa = f"""
 <!DOCTYPE html>
@@ -307,9 +307,9 @@ pagina_completa = f"""
                 
                 <h6 class="fw-bold mt-4 text-dark">🗺️ Legenda Adicional (UCs)</h6>
                 <ul class="small text-muted" style="list-style-type: none; padding-left: 0;">
-                    <li><span style="color: #e74c3c; font-weight: bold;">---</span> UC Federal</li>
-                    <li><span style="color: #3498db; font-weight: bold;">---</span> UC Estadual</li>
-                    <li><span style="color: #e67e22; font-weight: bold;">---</span> UC Municipal</li>
+                    <li><span style="color: #005200; font-weight: bold;">---</span> UC Federal</li>
+                    <li><span style="color: #1B7A1B; font-weight: bold;">---</span> UC Estadual</li>
+                    <li><span style="color: #179983; font-weight: bold;">---</span> UC Municipal</li>
                 </ul>
             </div>
             <div class="col-md-9 map-container">
