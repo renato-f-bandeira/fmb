@@ -7,7 +7,6 @@ import math
 import time
 import folium
 import pytz
-import pyogrio
 from folium.features import GeoJsonTooltip
 from datetime import datetime
 
@@ -17,13 +16,7 @@ agora_br = datetime.now(fuso_br)
 data_hoje_str = agora_br.strftime('%d/%m/%Y')
 hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
-print("1. Inspecionando o novo arquivo GeoPackage...")
-# --- MODO DETETIVE: Pede pro Python listar o que tem dentro do arquivo ---
-camadas = pyogrio.list_layers('dados_espaciais.gpkg')
-print("🚨 ATENÇÃO! AS CAMADAS REAIS DENTRO DO ARQUIVO SÃO:", camadas)
-# -------------------------------------------------------------------------
-
-print("2. Carregando as camadas do GeoPackage da Paraíba...")
+print("1. Carregando as camadas do GeoPackage da Paraíba...")
 # Camadas originais
 gdf_poligonos = gpd.read_file('dados_espaciais.gpkg', layer='lml_municipio_pb')
 gdf_poligonos = gdf_poligonos.to_crs(epsg=4326)
@@ -42,7 +35,7 @@ gdf_uc = gdf_uc.to_crs(epsg=4326)
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
-print("3. Carregando histórico anterior (Sistema de Checkpoint Inteligente)...")
+print("2. Carregando histórico anterior (Sistema de Checkpoint Inteligente)...")
 arquivo_historico = 'historico_risco.csv'
 if os.path.exists(arquivo_historico):
     df_historico = pd.read_csv(arquivo_historico)
@@ -52,7 +45,7 @@ else:
     historico_dict = {}
     print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
 
-print("4. Buscando dados climáticos na API...")
+print("3. Buscando dados climáticos na API...")
 # Embaralha a ordem das cidades para evitar que as mesmas sofram com eventuais falhas da API
 gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
 
@@ -169,7 +162,7 @@ for index, row in gdf_pontos.iterrows():
     
     time.sleep(2.0)
 
-print("5. Unindo os resultados matemáticos aos polígonos do mapa...")
+print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
 colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
@@ -178,15 +171,15 @@ gdf_final['Cor_Risco'] = gdf_final.get('Cor_Risco', pd.Series(['#bdc3c7']*len(gd
 gdf_final['Classe_Risco'] = gdf_final.get('Classe_Risco', pd.Series(['Sem Dados']*len(gdf_final))).fillna('Sem Dados')
 gdf_final['Data_Atualizacao'] = gdf_final.get('Data_Atualizacao', pd.Series(['Desconhecido']*len(gdf_final))).fillna('Desconhecido')
 
-print("6. Preparando o Mapa Interativo com as Novas Camadas...")
+print("5. Preparando o Mapa Interativo com as Novas Camadas...")
 mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles=None)
 
-# 6.1 Adicionando Mapas Base
+# 5.1 Adicionando Mapas Base
 folium.TileLayer('cartodbdark_matter', name="Modo Noturno (Padrão)").add_to(mapa_pb)
 folium.TileLayer('cartodbpositron', name="Modo Claro").add_to(mapa_pb)
 folium.TileLayer('OpenStreetMap', name="Ruas e Satélite (OSM)").add_to(mapa_pb)
 
-# 6.2 Camada de Limite do Estado (Apenas Contorno Fundo)
+# 5.2 Camada de Limite do Estado (Apenas Contorno Fundo)
 folium.GeoJson(
     gdf_estado,
     name='Limite Estadual (PB)',
@@ -198,7 +191,7 @@ folium.GeoJson(
     interactive=False # Desativa cliques na borda do estado
 ).add_to(mapa_pb)
 
-# 6.3 Camada dos Municípios (Com interatividade)
+# 5.3 Camada dos Municípios (Com interatividade)
 tooltip_mun = GeoJsonTooltip(
     fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h', 'Data_Atualizacao'],
     aliases=['Município:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade às 13h (%):', 'Última Atualização:'],
@@ -223,7 +216,7 @@ folium.GeoJson(
     tooltip=tooltip_mun
 ).add_to(mapa_pb)
 
-# 6.4 Camada de Unidades de Conservação (uc_BR) - Apenas Contorno Diferenciado
+# 5.4 Camada de Unidades de Conservação (uc_BR) - Apenas Contorno Diferenciado
 def estilo_uc(feature):
     esfera = feature['properties'].get('esfera', '')
     # Define as cores baseadas na esfera de gestão
@@ -251,14 +244,14 @@ folium.GeoJson(
     name='Unidades de Conservação (UC)',
     style_function=estilo_uc,
     tooltip=tooltip_uc,
-    show=False # <-- ALTERAÇÃO AQUI: Deixa a camada desligada por padrão
+    show=False # Camada inicia desligada
 ).add_to(mapa_pb)
 
 # Botão Controlador de Camadas no canto superior direito
 folium.LayerControl(collapsed=False).add_to(mapa_pb)
 mapa_html = mapa_pb._repr_html_()
 
-print("7. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
+print("6. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
 top_10 = gdf_final.sort_values(by='Probabilidade_Fogo', ascending=False).head(10)
 
 top_10_display = top_10.rename(columns={
