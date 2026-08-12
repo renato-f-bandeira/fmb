@@ -7,6 +7,7 @@ import math
 import time
 import folium
 import pytz
+import pyogrio
 from folium.features import GeoJsonTooltip
 from datetime import datetime
 
@@ -16,6 +17,14 @@ agora_br = datetime.now(fuso_br)
 data_hoje_str = agora_br.strftime('%d/%m/%Y')
 hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
+print("1. Carregando as camadas do GeoPackage da Paraíba...")
+
+# --- MODO DETETIVE: Pede pro Python listar o que tem dentro do arquivo ---
+camadas = pyogrio.list_layers('municipios_PB.gpkg')
+print("🚨 ATENÇÃO! AS CAMADAS REAIS DENTRO DO ARQUIVO SÃO:", camadas)
+# -------------------------------------------------------------------------
+
+gdf_poligonos = gpd.read_file('municipios_PB.gpkg', layer='lml_municipio_pb') 
 print("1. Carregando as camadas do GeoPackage da Paraíba...")
 # Camadas originais
 gdf_poligonos = gpd.read_file('municipios_PB.gpkg', layer='lml_municipio_pb')
