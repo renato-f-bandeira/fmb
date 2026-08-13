@@ -149,18 +149,18 @@ Sumé,30.0,1,9.1,2. Baixo,#C0C276,13/08/2026
 Tacima,51.0,1,0.7,1. Nulo,#A1A1A1,13/08/2026
 Taperoá,35.0,8,5.4,2. Baixo,#C0C276,13/08/2026
 Várzea,26.0,9,14.9,4. Alto (Alerta),#DE5C0B,13/08/2026
-Boa Ventura,22.0,45,27.2,5. Muito Alto,#E80527,13/08/2026
-Olho d'Água,21.0,45,29.7,5. Muito Alto,#E80527,13/08/2026
+Boa Ventura,22.0,45,27.2,5. Muito Alto,#DE1010,13/08/2026
+Olho d'Água,21.0,45,29.7,5. Muito Alto,#DE1010,13/08/2026
 Bom Sucesso,28.0,8,12.0,3. Moderado,#E8A523,13/08/2026
 Pombal,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Juru,26.0,20,16.0,4. Alto (Alerta),#DE5C0B,13/08/2026
 Princesa Isabel,28.0,20,12.9,3. Moderado,#E8A523,13/08/2026
 Santana de Mangueira,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
-Diamante,23.0,8,20.2,5. Muito Alto,#E80527,13/08/2026
-Pedra Branca,24.0,45,22.6,5. Muito Alto,#E80527,13/08/2026
+Diamante,23.0,8,20.2,5. Muito Alto,#DE1010,13/08/2026
+Pedra Branca,24.0,45,22.6,5. Muito Alto,#DE1010,13/08/2026
 Piancó,24.0,18,19.3,4. Alto (Alerta),#DE5C0B,13/08/2026
 Igaracy,24.0,9,18.4,4. Alto (Alerta),#DE5C0B,13/08/2026
-Curral Velho,22.0,45,27.2,5. Muito Alto,#E80527,13/08/2026
+Curral Velho,22.0,45,27.2,5. Muito Alto,#DE1010,13/08/2026
 Bernardino Batista,27.0,8,13.3,3. Moderado,#E8A523,13/08/2026
 Conceição,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 São José da Lagoa Tapada,26.0,45,18.5,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -171,13 +171,13 @@ Brejo dos Santos,31.0,8,8.5,2. Baixo,#C0C276,13/08/2026
 Santa Cruz,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Poço Dantas,28.0,8,12.0,3. Moderado,#E8A523,13/08/2026
 Mato Grosso,25.0,20,17.7,4. Alto (Alerta),#DE5C0B,13/08/2026
-Santa Helena,24.0,45,22.6,5. Muito Alto,#E80527,13/08/2026
+Santa Helena,24.0,45,22.6,5. Muito Alto,#DE1010,13/08/2026
 Triunfo,24.0,20,19.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 Paulista,25.0,20,17.7,4. Alto (Alerta),#DE5C0B,13/08/2026
 Uiraúna,25.0,9,16.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 Coremas,27.0,9,13.4,3. Moderado,#E8A523,13/08/2026
 Aparecida,26.0,20,16.0,4. Alto (Alerta),#DE5C0B,13/08/2026
-Mãe d'Água,24.0,45,22.6,5. Muito Alto,#E80527,13/08/2026
+Mãe d'Água,24.0,45,22.6,5. Muito Alto,#DE1010,13/08/2026
 Água Branca,26.0,18,15.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 São Bento,24.0,20,19.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 Poço de José de Moura,26.0,8,14.8,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -187,7 +187,7 @@ Carrapateira,25.0,18,17.5,4. Alto (Alerta),#DE5C0B,13/08/2026
 Vista Serrana,25.0,22,17.9,4. Alto (Alerta),#DE5C0B,13/08/2026
 São Francisco,28.0,20,12.9,3. Moderado,#E8A523,13/08/2026
 Cachoeira dos Índios,24.0,8,18.3,4. Alto (Alerta),#DE5C0B,13/08/2026
-Santa Teresinha,23.0,18,21.4,5. Muito Alto,#E80527,13/08/2026
+Santa Teresinha,23.0,18,21.4,5. Muito Alto,#DE1010,13/08/2026
 Brejo do Cruz,25.0,20,17.7,4. Alto (Alerta),#DE5C0B,13/08/2026
 Belém do Brejo do Cruz,24.0,20,19.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 Lagoa,26.0,8,14.8,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -196,22 +196,22 @@ Jericó,26.0,8,14.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 Joca Claudino,27.0,8,13.3,3. Moderado,#E8A523,13/08/2026
 Lastro,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Catolé do Rocha,30.0,8,9.6,2. Baixo,#C0C276,13/08/2026
-São José de Piranhas,23.0,45,24.8,5. Muito Alto,#E80527,13/08/2026
+São José de Piranhas,23.0,45,24.8,5. Muito Alto,#DE1010,13/08/2026
 Aguiar,26.0,45,18.5,4. Alto (Alerta),#DE5C0B,13/08/2026
 Riacho dos Cavalos,24.0,22,19.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 São José de Princesa,31.0,20,9.2,2. Baixo,#C0C276,13/08/2026
 Sousa,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
-Cajazeiras,23.0,8,20.2,5. Muito Alto,#E80527,13/08/2026
+Cajazeiras,23.0,8,20.2,5. Muito Alto,#DE1010,13/08/2026
 Patos,25.0,9,16.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 São Domingos,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
-Bom Jesus,23.0,28,22.6,5. Muito Alto,#E80527,13/08/2026
+Bom Jesus,23.0,28,22.6,5. Muito Alto,#DE1010,13/08/2026
 Vieirópolis,27.0,34,15.6,4. Alto (Alerta),#DE5C0B,13/08/2026
-Catingueira,21.0,45,29.7,5. Muito Alto,#E80527,13/08/2026
-Cajazeirinhas,23.0,28,22.6,5. Muito Alto,#E80527,13/08/2026
+Catingueira,21.0,45,29.7,5. Muito Alto,#DE1010,13/08/2026
+Cajazeirinhas,23.0,28,22.6,5. Muito Alto,#DE1010,13/08/2026
 Condado,24.0,22,19.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 São Bentinho,25.0,28,18.5,4. Alto (Alerta),#DE5C0B,13/08/2026
-São João do Rio do Peixe,23.0,9,20.3,5. Muito Alto,#E80527,13/08/2026
-Emas,21.0,28,27.2,5. Muito Alto,#E80527,13/08/2026
+São João do Rio do Peixe,23.0,9,20.3,5. Muito Alto,#DE1010,13/08/2026
+Emas,21.0,28,27.2,5. Muito Alto,#DE1010,13/08/2026
 Serra Grande,25.0,29,18.7,4. Alto (Alerta),#DE5C0B,13/08/2026
 Imaculada,25.0,18,17.5,4. Alto (Alerta),#DE5C0B,13/08/2026
 Santa Inês,26.0,45,18.5,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -220,5 +220,5 @@ Ibiara,27.0,8,13.3,3. Moderado,#E8A523,13/08/2026
 Tavares,29.0,18,11.4,3. Moderado,#E8A523,13/08/2026
 Bonito de Santa Fé,27.0,45,16.7,4. Alto (Alerta),#DE5C0B,13/08/2026
 Itaporanga,24.0,8,18.3,4. Alto (Alerta),#DE5C0B,13/08/2026
-Nova Olinda,24.0,45,22.6,5. Muito Alto,#E80527,13/08/2026
-São José de Caiana,25.0,45,20.5,5. Muito Alto,#E80527,13/08/2026
+Nova Olinda,24.0,45,22.6,5. Muito Alto,#DE1010,13/08/2026
+São José de Caiana,25.0,45,20.5,5. Muito Alto,#DE1010,13/08/2026
