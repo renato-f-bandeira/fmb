@@ -38,7 +38,7 @@ Monteiro,28.0,9,12.0,3. Moderado,#E8A523,13/08/2026
 Alhandra,62.0,2,0.2,1. Nulo,#A1A1A1,13/08/2026
 Alagoa Grande,55.0,1,0.4,1. Nulo,#A1A1A1,13/08/2026
 Bananeiras,62.0,1,0.2,1. Nulo,#A1A1A1,13/08/2026
-Barra de Santa Rosa,46.0,0,1.3,1. Nulo,#27ae60,12/08/2026
+Barra de Santa Rosa,45.0,1,1.5,1. Nulo,#A1A1A1,13/08/2026
 Mari,54.0,1,0.5,1. Nulo,#A1A1A1,13/08/2026
 Caiçara,56.0,1,0.4,1. Nulo,#A1A1A1,13/08/2026
 São Sebastião de Lagoa de Roça,61.0,1,0.2,1. Nulo,#A1A1A1,13/08/2026
@@ -130,7 +130,7 @@ Pirpirituba,61.0,1,0.2,1. Nulo,#A1A1A1,13/08/2026
 Picuí,40.0,1,2.8,1. Nulo,#A1A1A1,13/08/2026
 Rio Tinto,58.0,1,0.3,1. Nulo,#A1A1A1,13/08/2026
 Salgado de São Félix,48.0,2,1.1,1. Nulo,#A1A1A1,13/08/2026
-Santa Rita,64.0,0,0.1,1. Nulo,#27ae60,12/08/2026
+Santa Rita,61.0,1,0.2,1. Nulo,#A1A1A1,13/08/2026
 Santo André,36.0,8,4.8,1. Nulo,#A1A1A1,13/08/2026
 São João do Cariri,39.0,4,3.2,1. Nulo,#A1A1A1,13/08/2026
 São José do Bonfim,24.0,22,19.8,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -149,13 +149,13 @@ Sumé,30.0,1,9.1,2. Baixo,#C0C276,13/08/2026
 Tacima,51.0,1,0.7,1. Nulo,#A1A1A1,13/08/2026
 Taperoá,35.0,8,5.4,2. Baixo,#C0C276,13/08/2026
 Várzea,26.0,9,14.9,4. Alto (Alerta),#DE5C0B,13/08/2026
-Boa Ventura,26.0,45,18.5,4. Alto (Alerta),#e74c3c,12/08/2026
+Boa Ventura,22.0,45,27.2,5. Muito Alto,#E80527,13/08/2026
 Olho d'Água,21.0,45,29.7,5. Muito Alto,#E80527,13/08/2026
 Bom Sucesso,28.0,8,12.0,3. Moderado,#E8A523,13/08/2026
 Pombal,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Juru,26.0,20,16.0,4. Alto (Alerta),#DE5C0B,13/08/2026
 Princesa Isabel,28.0,20,12.9,3. Moderado,#E8A523,13/08/2026
-Santana de Mangueira,28.0,19,12.8,3. Moderado,#e67e22,12/08/2026
+Santana de Mangueira,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Diamante,23.0,8,20.2,5. Muito Alto,#E80527,13/08/2026
 Pedra Branca,24.0,45,22.6,5. Muito Alto,#E80527,13/08/2026
 Piancó,24.0,18,19.3,4. Alto (Alerta),#DE5C0B,13/08/2026
@@ -192,7 +192,7 @@ Brejo do Cruz,25.0,20,17.7,4. Alto (Alerta),#DE5C0B,13/08/2026
 Belém do Brejo do Cruz,24.0,20,19.6,4. Alto (Alerta),#DE5C0B,13/08/2026
 Lagoa,26.0,8,14.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 Marizópolis,27.0,45,16.7,4. Alto (Alerta),#DE5C0B,13/08/2026
-Jericó,29.0,7,10.6,3. Moderado,#e67e22,12/08/2026
+Jericó,26.0,8,14.8,4. Alto (Alerta),#DE5C0B,13/08/2026
 Joca Claudino,27.0,8,13.3,3. Moderado,#E8A523,13/08/2026
 Lastro,27.0,20,14.4,4. Alto (Alerta),#DE5C0B,13/08/2026
 Catolé do Rocha,30.0,8,9.6,2. Baixo,#C0C276,13/08/2026
