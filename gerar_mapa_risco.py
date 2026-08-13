@@ -124,7 +124,7 @@ for index, row in gdf_pontos.iterrows():
         elif probabilidade < 10.0: classe, cor = '2. Baixo', '#C0C276'
         elif probabilidade < 14.0: classe, cor = '3. Moderado', '#E8A523'
         elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
-        elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#E80527'
+        elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#DE1010'
         else: classe, cor = '6. Crítico', '#96002D'
 
         historico_dict[nome_cidade] = {
