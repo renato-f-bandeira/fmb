@@ -8,6 +8,7 @@ import time
 import folium
 import pytz
 from folium.features import GeoJsonTooltip
+from branca.element import Template, MacroElement
 from datetime import datetime
 
 # --- CONFIGURAÇÃO DE TEMPO (FUSO DE BRASÍLIA) ---
@@ -137,7 +138,7 @@ for index, row in gdf_pontos.iterrows():
         }
         
     else:
-        print(f"⚠️ API falhou para {nome_cidade}. Buscando na memória...")
+        print(f" - API falhou para {nome_cidade}. Buscando na memória...")
         if nome_cidade not in historico_dict:
             print(f"  -> SEM DADOS: A cidade não estava na memória.")
             historico_dict[nome_cidade] = {
@@ -184,11 +185,11 @@ folium.GeoJson(
     gdf_estado,
     name='Limite Estadual (PB)',
     style_function=lambda x: {
-        'color': '#000000', # Contorno Preto
-        'weight': 3,        # Borda um pouco mais grossa para destacar
-        'fillOpacity': 0    # Interior totalmente transparente
+        'color': '#000000', 
+        'weight': 3,        
+        'fillOpacity': 0    
     },
-    interactive=False # Desativa cliques na borda do estado
+    interactive=False
 ).add_to(mapa_pb)
 
 # 5.3 Camada dos Municípios (Com interatividade)
@@ -216,20 +217,18 @@ folium.GeoJson(
     tooltip=tooltip_mun
 ).add_to(mapa_pb)
 
-# 5.4 Camada de Unidades de Conservação (uc_BR) - Apenas Contorno Diferenciado
+# 5.4 Camada de Unidades de Conservação (uc_BR) - Linhas contínuas
 def estilo_uc(feature):
     esfera = feature['properties'].get('esfera', '')
-    # Define as cores baseadas na esfera de gestão
-    cor_contorno = '#ffffff' # Branco padrão caso não tenha esfera
-    if esfera == 'Federal': cor_contorno = '#005200'      # Verde Escuro
-    elif esfera == 'Estadual': cor_contorno = '#1B7A1B'   # Verde Claro
-    elif esfera == 'Municipal': cor_contorno = '#179983'  # Verde Azulado
+    cor_contorno = '#ffffff'
+    if esfera == 'Federal': cor_contorno = '#005200'
+    elif esfera == 'Estadual': cor_contorno = '#1B7A1B'
+    elif esfera == 'Municipal': cor_contorno = '#179983'
     
     return {
         'color': cor_contorno,
         'weight': 2.5,
-        'fillOpacity': 0, # Apenas contorno, nada de preenchimento
-        'dashArray': '4, 4' # Faz o traço ser pontilhado para diferenciar das cidades
+        'fillOpacity': 0 # Removido o dashArray para linhas contínuas
     }
 
 tooltip_uc = GeoJsonTooltip(
@@ -244,8 +243,39 @@ folium.GeoJson(
     name='Unidades de Conservação (UC)',
     style_function=estilo_uc,
     tooltip=tooltip_uc,
-    show=False # Camada inicia desligada
+    show=False 
 ).add_to(mapa_pb)
+
+# 5.5 Inserindo a Legenda Customizada no Mapa
+legenda_html = '''
+{% macro html(this, kwargs) %}
+<div style="
+    position: fixed; 
+    bottom: 30px; left: 30px; width: 200px; height: auto; 
+    background-color: rgba(255, 255, 255, 0.95); border: 2px solid #ccc; z-index:9999; font-size:12px;
+    padding: 12px; border-radius: 6px; box-shadow: 2px 2px 6px rgba(0,0,0,0.2);
+    font-family: Arial, sans-serif;
+    ">
+    <h6 style="margin-top: 0; font-weight: bold; text-align: center; color: #333;">Classe de Risco</h6>
+    <i style="background: #A1A1A1; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777;"></i> 1. Nulo<br>
+    <i style="background: #C0C276; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">2. Baixo</span><br>
+    <i style="background: #E8A523; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">3. Moderado</span><br>
+    <i style="background: #DE5C0B; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">4. Alto (Alerta)</span><br>
+    <i style="background: #DE1010; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">5. Muito Alto</span><br>
+    <i style="background: #96002D; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">6. Crítico</span><br>
+    
+    <hr style="margin: 10px 0; border-top: 1px solid #ccc;">
+    
+    <h6 style="margin-top: 0; margin-bottom: 8px; font-weight: bold; text-align: center; color: #333;">Unidades de Conservação</h6>
+    <i style="border-top: 3px solid #005200; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> Federal<br>
+    <i style="border-top: 3px solid #1B7A1B; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> <span style="display:inline-block; margin-top:2px;">Estadual</span><br>
+    <i style="border-top: 3px solid #179983; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> <span style="display:inline-block; margin-top:2px;">Municipal</span><br>
+</div>
+{% endmacro %}
+'''
+macro = MacroElement()
+macro._template = Template(legenda_html)
+mapa_pb.get_root().add_child(macro)
 
 # Botão Controlador de Camadas no canto superior direito
 folium.LayerControl(collapsed=False).add_to(mapa_pb)
@@ -267,9 +297,11 @@ tabela_html = top_10_display[['Município', 'Risco (%)', 'Classe']].to_html(
 )
 
 tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
-tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Crítico 🚨</span>')
+# Emojis retirados dos destaques da tabela
+tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Crítico</span>')
 tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #B02719; font-weight: bold;">5. Muito Alto</span>')
 
+# HTML Final Limpo, sem emojis e com a barra lateral focada no ranking
 pagina_completa = f"""
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -282,7 +314,7 @@ pagina_completa = f"""
         .container-fluid {{ height: 100vh; }}
         .row {{ height: 100%; }}
         .sidebar {{ background-color: #f8f9fa; padding: 20px; overflow-y: auto; height: 100%; border-right: 2px solid #ddd; }}
-        .map-container {{ padding: 0; height: 100%; }}
+        .map-container {{ padding: 0; height: 100%; position: relative; }}
         .table th, .table td {{ text-align: left !important; vertical-align: middle; }}
     </style>
 </head>
@@ -290,20 +322,13 @@ pagina_completa = f"""
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3 sidebar shadow-sm">
-                <h4 class="mb-3 text-danger fw-bold">🔥 Índice Mata Branca</h4>
+                <h4 class="mb-3 text-danger fw-bold">Índice Mata Branca</h4>
                 <p class="text-muted small mb-4">Atualizado em: {hora_exibicao} (Horário de Brasília)</p>
                 <hr>
-                <h6 class="fw-bold mb-3 text-dark">⚠️ Top 10 Cidades em Risco</h6>
+                <h6 class="fw-bold mb-3 text-dark">Top 10 Cidades em Risco</h6>
                 {tabela_html}
                 <hr>
                 <p class="small text-muted mt-3">Metodologia: Equação de Regressão Logística baseada em Umidade Relativa e Dias Sem Chuva (DSC). <br><br><strong>Recomendado para uso tático pelo Corpo de Bombeiros da Paraíba.</strong></p>
-                
-                <h6 class="fw-bold mt-4 text-dark">🗺️ Legenda Adicional (UCs)</h6>
-                <ul class="small text-muted" style="list-style-type: none; padding-left: 0;">
-                    <li><span style="color: #005200; font-weight: bold;">---</span> UC Federal</li>
-                    <li><span style="color: #1B7A1B; font-weight: bold;">---</span> UC Estadual</li>
-                    <li><span style="color: #179983; font-weight: bold;">---</span> UC Municipal</li>
-                </ul>
             </div>
             <div class="col-md-9 map-container">
                 {mapa_html}
@@ -317,4 +342,4 @@ pagina_completa = f"""
 with open('dashboard_operacional.html', 'w', encoding='utf-8') as f:
     f.write(pagina_completa)
 
-print("✅ Dashboard gerado com sucesso!")
+print("Dashboard gerado com sucesso!")
