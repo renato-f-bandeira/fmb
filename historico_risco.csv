@@ -1,224 +1,224 @@
 nome,Umidade_13h,DSC,Probabilidade_Fogo,Classe_Risco,Cor_Risco,Data_Atualizacao
-Baía da Traição,69,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Belém,56,0,0.4,1. Nulo,#A1A1A1,02/09/2026
-São Sebastião do Umbuzeiro,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
+Baía da Traição,77,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Belém,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+São Sebastião do Umbuzeiro,25,15,17.2,4. Alto (Alerta),#DE5C0B,03/09/2026
 Aroeiras,46,5,1.4,1. Nulo,#A1A1A1,02/09/2026
-Santa Cecília,43,1,2.0,1. Nulo,#A1A1A1,02/09/2026
-Alcantil,43,0,1.9,1. Nulo,#A1A1A1,02/09/2026
-Gado Bravo,41,1,2.5,1. Nulo,#A1A1A1,02/09/2026
-Campina Grande,55,1,0.4,1. Nulo,#A1A1A1,02/09/2026
-Serra Redonda,56,0,0.4,1. Nulo,#A1A1A1,02/09/2026
+Santa Cecília,44,2,1.7,1. Nulo,#A1A1A1,03/09/2026
+Alcantil,40,1,2.8,1. Nulo,#A1A1A1,03/09/2026
+Gado Bravo,45,2,1.5,1. Nulo,#A1A1A1,03/09/2026
+Campina Grande,54,2,0.5,1. Nulo,#A1A1A1,03/09/2026
+Serra Redonda,61,1,0.2,1. Nulo,#A1A1A1,03/09/2026
 Salgadinho,35,28,6.2,2. Baixo,#C0C276,02/09/2026
-Montadas,58,1,0.3,1. Nulo,#A1A1A1,02/09/2026
-Junco do Seridó,36,21,5.2,2. Baixo,#C0C276,02/09/2026
-Cuitegi,53,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Pedra Lavrada,41,14,2.7,1. Nulo,#A1A1A1,02/09/2026
-Borborema,59,0,0.3,1. Nulo,#A1A1A1,02/09/2026
-Nova Floresta,42,6,2.3,1. Nulo,#A1A1A1,02/09/2026
-São José do Brejo do Cruz,26,40,18.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Pedro Régis,55,1,0.4,1. Nulo,#A1A1A1,02/09/2026
-Puxinanã,59,1,0.3,1. Nulo,#A1A1A1,02/09/2026
-Baraúna,42,22,2.6,1. Nulo,#A1A1A1,02/09/2026
-Cacimba de Areia,25,42,20.1,5. Muito Alto,#DE1010,02/09/2026
-Conde,69,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Umbuzeiro,49,1,0.9,1. Nulo,#A1A1A1,02/09/2026
-Riachão do Bacamarte,50,0,0.8,1. Nulo,#A1A1A1,02/09/2026
-Pilõezinhos,58,0,0.3,1. Nulo,#A1A1A1,02/09/2026
+Montadas,56,2,0.4,1. Nulo,#A1A1A1,03/09/2026
+Junco do Seridó,32,22,8.4,2. Baixo,#C0C276,03/09/2026
+Cuitegi,60,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Pedra Lavrada,37,15,4.5,1. Nulo,#A1A1A1,03/09/2026
+Borborema,67,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Nova Floresta,39,7,3.3,1. Nulo,#A1A1A1,03/09/2026
+São José do Brejo do Cruz,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Pedro Régis,61,2,0.2,1. Nulo,#A1A1A1,03/09/2026
+Puxinanã,56,2,0.4,1. Nulo,#A1A1A1,03/09/2026
+Baraúna,39,23,3.7,1. Nulo,#A1A1A1,03/09/2026
+Cacimba de Areia,23,43,24.5,5. Muito Alto,#DE1010,03/09/2026
+Conde,84,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Umbuzeiro,48,2,1.1,1. Nulo,#A1A1A1,03/09/2026
+Riachão do Bacamarte,53,1,0.6,1. Nulo,#A1A1A1,03/09/2026
+Pilõezinhos,65,1,0.1,1. Nulo,#A1A1A1,03/09/2026
 Lucena,67,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Juripiranga,50,0,0.8,1. Nulo,#A1A1A1,02/09/2026
+Juripiranga,59,1,0.3,1. Nulo,#A1A1A1,03/09/2026
 Pocinhos,49,4,1.0,1. Nulo,#A1A1A1,02/09/2026
-Queimadas,50,0,0.8,1. Nulo,#A1A1A1,02/09/2026
-João Pessoa,65,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Assunção,35,14,5.6,2. Baixo,#C0C276,02/09/2026
-São Vicente do Seridó,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Cacimbas,28,45,15.0,4. Alto (Alerta),#DE5C0B,02/09/2026
+Queimadas,47,1,1.2,1. Nulo,#A1A1A1,03/09/2026
+João Pessoa,77,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Assunção,32,15,8.0,2. Baixo,#C0C276,03/09/2026
+São Vicente do Seridó,35,15,5.6,2. Baixo,#C0C276,03/09/2026
+Cacimbas,26,45,18.5,4. Alto (Alerta),#DE5C0B,03/09/2026
 Camalaú,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-São João do Tigre,34,14,6.3,2. Baixo,#C0C276,02/09/2026
+São João do Tigre,31,15,8.9,2. Baixo,#C0C276,03/09/2026
 Monteiro,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
-Alhandra,66,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Alagoa Grande,53,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Bananeiras,59,0,0.3,1. Nulo,#A1A1A1,02/09/2026
-Barra de Santa Rosa,46,4,1.4,1. Nulo,#A1A1A1,02/09/2026
-Mari,56,2,0.4,1. Nulo,#A1A1A1,02/09/2026
-Caiçara,51,0,0.7,1. Nulo,#A1A1A1,02/09/2026
-São Sebastião de Lagoa de Roça,62,0,0.2,1. Nulo,#A1A1A1,02/09/2026
+Alhandra,80,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Alagoa Grande,58,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Bananeiras,65,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Barra de Santa Rosa,45,5,1.6,1. Nulo,#A1A1A1,03/09/2026
+Mari,58,3,0.3,1. Nulo,#A1A1A1,03/09/2026
+Caiçara,57,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+São Sebastião de Lagoa de Roça,63,1,0.2,1. Nulo,#A1A1A1,03/09/2026
 Riachão do Poço,69,0,0.1,1. Nulo,#A1A1A1,01/09/2026
-Matinhas,61,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Tenório,38,21,4.1,1. Nulo,#A1A1A1,02/09/2026
-Coxixola,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Riachão,47,0,1.2,1. Nulo,#A1A1A1,02/09/2026
-Amparo,32,14,7.9,2. Baixo,#C0C276,02/09/2026
-Barra de Santana,41,0,2.5,1. Nulo,#A1A1A1,02/09/2026
-Quixaba,30,20,10.3,3. Moderado,#E8A523,01/09/2026
-Alagoinha,73,0,0.0,1. Nulo,#A1A1A1,01/09/2026
-Duas Estradas,53,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Frei Martinho,37,21,4.6,1. Nulo,#A1A1A1,02/09/2026
+Matinhas,63,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Tenório,34,22,6.6,2. Baixo,#C0C276,03/09/2026
+Coxixola,30,15,10.0,3. Moderado,#E8A523,03/09/2026
+Riachão,52,1,0.6,1. Nulo,#A1A1A1,03/09/2026
+Amparo,27,15,13.9,3. Moderado,#E8A523,03/09/2026
+Barra de Santana,42,1,2.2,1. Nulo,#A1A1A1,03/09/2026
+Quixaba,21,22,26.4,5. Muito Alto,#DE1010,03/09/2026
+Alagoinha,60,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Duas Estradas,57,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Frei Martinho,32,22,8.4,2. Baixo,#C0C276,03/09/2026
 Ouro Velho,28,14,12.4,3. Moderado,#E8A523,02/09/2026
-Araruna,46,0,1.3,1. Nulo,#A1A1A1,02/09/2026
-Logradouro,64,1,0.1,1. Nulo,#A1A1A1,01/09/2026
-Barra de São Miguel,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Caraúbas,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Congo,37,14,4.4,1. Nulo,#A1A1A1,02/09/2026
+Araruna,54,1,0.5,1. Nulo,#A1A1A1,03/09/2026
+Logradouro,59,3,0.3,1. Nulo,#A1A1A1,03/09/2026
+Barra de São Miguel,34,15,6.3,2. Baixo,#C0C276,03/09/2026
+Caraúbas,35,15,5.6,2. Baixo,#C0C276,03/09/2026
+Congo,32,15,8.0,2. Baixo,#C0C276,03/09/2026
 Riacho de Santo Antônio,44,0,1.7,1. Nulo,#A1A1A1,02/09/2026
-Caaporã,66,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Desterro,32,29,8.8,2. Baixo,#C0C276,02/09/2026
-Algodão de Jandaíra,57,13,0.4,1. Nulo,#A1A1A1,01/09/2026
-Araçagi,53,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Cuité,43,1,2.0,1. Nulo,#A1A1A1,02/09/2026
-Solânea,49,1,0.9,1. Nulo,#A1A1A1,02/09/2026
+Caaporã,80,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Desterro,29,30,12.3,3. Moderado,#E8A523,03/09/2026
+Algodão de Jandaíra,48,15,1.2,1. Nulo,#A1A1A1,03/09/2026
+Araçagi,58,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Cuité,44,2,1.7,1. Nulo,#A1A1A1,03/09/2026
+Solânea,58,2,0.3,1. Nulo,#A1A1A1,03/09/2026
 Boa Vista,45,2,1.5,1. Nulo,#A1A1A1,02/09/2026
 Areial,58,1,0.3,1. Nulo,#A1A1A1,02/09/2026
-Massaranduba,59,0,0.3,1. Nulo,#A1A1A1,02/09/2026
-Pitimbu,70,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Prata,28,14,12.4,3. Moderado,#E8A523,02/09/2026
+Massaranduba,60,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Pitimbu,79,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Prata,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
 Lagoa Seca,64,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Remígio,54,1,0.5,1. Nulo,#A1A1A1,02/09/2026
-Passagem,28,45,15.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Arara,76,0,0.0,1. Nulo,#A1A1A1,01/09/2026
-São José dos Ramos,51,0,0.7,1. Nulo,#A1A1A1,02/09/2026
+Remígio,59,2,0.3,1. Nulo,#A1A1A1,03/09/2026
+Passagem,25,45,20.5,5. Muito Alto,#DE1010,03/09/2026
+Arara,67,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+São José dos Ramos,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
 Teixeira,28,45,15.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-São Domingos do Cariri,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Zabelê,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
-Natuba,54,1,0.5,1. Nulo,#A1A1A1,02/09/2026
-Cabedelo,67,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Caturité,43,1,2.0,1. Nulo,#A1A1A1,02/09/2026
-Boqueirão,42,1,2.2,1. Nulo,#A1A1A1,02/09/2026
-Caldas Brandão,52,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Ingá,52,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Sapé,59,2,0.3,1. Nulo,#A1A1A1,02/09/2026
-Areia de Baraúnas,30,45,12.1,3. Moderado,#E8A523,02/09/2026
-Alagoa Nova,64,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Areia,62,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Bayeux,63,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Cabaceiras,41,14,2.7,1. Nulo,#A1A1A1,02/09/2026
-Cacimba de Dentro,47,1,1.2,1. Nulo,#A1A1A1,02/09/2026
-Capim,58,0,0.3,1. Nulo,#A1A1A1,02/09/2026
+São Domingos do Cariri,33,15,7.1,2. Baixo,#C0C276,03/09/2026
+Zabelê,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Natuba,58,2,0.3,1. Nulo,#A1A1A1,03/09/2026
+Cabedelo,80,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Caturité,39,2,3.2,1. Nulo,#A1A1A1,03/09/2026
+Boqueirão,35,2,5.2,2. Baixo,#C0C276,03/09/2026
+Caldas Brandão,59,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Ingá,56,1,0.4,1. Nulo,#A1A1A1,03/09/2026
+Sapé,62,3,0.2,1. Nulo,#A1A1A1,03/09/2026
+Areia de Baraúnas,27,45,16.7,4. Alto (Alerta),#DE5C0B,03/09/2026
+Alagoa Nova,67,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Areia,68,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Bayeux,73,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Cabaceiras,34,15,6.3,2. Baixo,#C0C276,03/09/2026
+Cacimba de Dentro,56,2,0.4,1. Nulo,#A1A1A1,03/09/2026
+Capim,66,1,0.1,1. Nulo,#A1A1A1,03/09/2026
 Cuité de Mamanguape,56,0,0.4,1. Nulo,#A1A1A1,02/09/2026
-Curral de Cima,69,0,0.1,1. Nulo,#A1A1A1,31/08/2026
-Casserengue,49,1,0.9,1. Nulo,#A1A1A1,02/09/2026
-Cruz do Espírito Santo,59,1,0.3,1. Nulo,#A1A1A1,02/09/2026
-Cubati,41,14,2.7,1. Nulo,#A1A1A1,02/09/2026
-Damião,45,1,1.5,1. Nulo,#A1A1A1,02/09/2026
-Dona Inês,52,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Esperança,53,1,0.6,1. Nulo,#A1A1A1,02/09/2026
-Fagundes,50,0,0.8,1. Nulo,#A1A1A1,02/09/2026
-Guarabira,55,0,0.4,1. Nulo,#A1A1A1,02/09/2026
-Gurinhém,52,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Jacaraú,59,1,0.3,1. Nulo,#A1A1A1,02/09/2026
-Gurjão,39,14,3.5,1. Nulo,#A1A1A1,02/09/2026
-Itabaiana,53,1,0.6,1. Nulo,#A1A1A1,02/09/2026
-Itapororoca,56,0,0.4,1. Nulo,#A1A1A1,02/09/2026
+Curral de Cima,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Casserengue,56,2,0.4,1. Nulo,#A1A1A1,03/09/2026
+Cruz do Espírito Santo,67,2,0.1,1. Nulo,#A1A1A1,03/09/2026
+Cubati,39,15,3.5,1. Nulo,#A1A1A1,03/09/2026
+Damião,56,2,0.4,1. Nulo,#A1A1A1,03/09/2026
+Dona Inês,58,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Esperança,51,2,0.7,1. Nulo,#A1A1A1,03/09/2026
+Fagundes,49,1,0.9,1. Nulo,#A1A1A1,03/09/2026
+Guarabira,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Gurinhém,58,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Jacaraú,64,2,0.1,1. Nulo,#A1A1A1,03/09/2026
+Gurjão,35,15,5.6,2. Baixo,#C0C276,03/09/2026
+Itabaiana,58,2,0.3,1. Nulo,#A1A1A1,03/09/2026
+Itapororoca,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
 Itatuba,46,0,1.3,1. Nulo,#A1A1A1,02/09/2026
-Livramento,34,14,6.3,2. Baixo,#C0C276,02/09/2026
-Juarez Távora,54,0,0.5,1. Nulo,#A1A1A1,02/09/2026
-Mataraca,66,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Maturéia,27,45,16.7,4. Alto (Alerta),#DE5C0B,02/09/2026
+Livramento,31,15,8.9,2. Baixo,#C0C276,03/09/2026
+Juarez Távora,59,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Mataraca,75,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Maturéia,25,45,20.5,5. Muito Alto,#DE1010,03/09/2026
 Juazeirinho,38,21,4.1,1. Nulo,#A1A1A1,02/09/2026
-Lagoa de Dentro,54,0,0.5,1. Nulo,#A1A1A1,02/09/2026
-Mamanguape,57,0,0.3,1. Nulo,#A1A1A1,02/09/2026
-Marcação,62,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Mogeiro,54,0,0.5,1. Nulo,#A1A1A1,02/09/2026
-Pedras de Fogo,71,0,0.1,1. Nulo,#A1A1A1,31/08/2026
+Lagoa de Dentro,59,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Mamanguape,64,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Marcação,72,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Mogeiro,57,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Pedras de Fogo,68,1,0.1,1. Nulo,#A1A1A1,03/09/2026
 Mulungu,52,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-Nova Palmeira,39,21,3.7,1. Nulo,#A1A1A1,02/09/2026
-Santa Luzia,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Olivedos,45,0,1.5,1. Nulo,#A1A1A1,02/09/2026
+Nova Palmeira,34,22,6.6,2. Baixo,#C0C276,03/09/2026
+Santa Luzia,25,15,17.2,4. Alto (Alerta),#DE5C0B,03/09/2026
+Olivedos,44,1,1.7,1. Nulo,#A1A1A1,03/09/2026
 Pilar,47,0,1.2,1. Nulo,#A1A1A1,02/09/2026
-Parari,42,13,2.4,1. Nulo,#A1A1A1,01/09/2026
-Pilões,61,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Pirpirituba,55,0,0.4,1. Nulo,#A1A1A1,02/09/2026
-Picuí,41,21,2.9,1. Nulo,#A1A1A1,02/09/2026
-Rio Tinto,62,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Salgado de São Félix,49,5,1.0,1. Nulo,#A1A1A1,02/09/2026
-Santa Rita,64,0,0.1,1. Nulo,#A1A1A1,02/09/2026
-Santo André,37,28,4.9,1. Nulo,#A1A1A1,02/09/2026
-São João do Cariri,43,1,2.0,1. Nulo,#A1A1A1,02/09/2026
-São José do Bonfim,24,14,18.9,4. Alto (Alerta),#DE5C0B,02/09/2026
+Parari,31,15,8.9,2. Baixo,#C0C276,03/09/2026
+Pilões,67,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Pirpirituba,60,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Picuí,35,22,5.9,2. Baixo,#C0C276,03/09/2026
+Rio Tinto,72,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Salgado de São Félix,55,6,0.5,1. Nulo,#A1A1A1,03/09/2026
+Santa Rita,75,1,0.0,1. Nulo,#A1A1A1,03/09/2026
+Santo André,34,29,7.0,2. Baixo,#C0C276,03/09/2026
+São João do Cariri,35,2,5.2,2. Baixo,#C0C276,03/09/2026
+São José do Bonfim,22,15,23.1,5. Muito Alto,#DE1010,03/09/2026
 São José do Sabugi,31,21,9.3,2. Baixo,#C0C276,02/09/2026
 Sertãozinho,53,0,0.6,1. Nulo,#A1A1A1,02/09/2026
-São José dos Cordeiros,38,14,3.9,1. Nulo,#A1A1A1,02/09/2026
-São Mamede,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-São Miguel de Taipu,50,0,0.8,1. Nulo,#A1A1A1,02/09/2026
-Serra Branca,41,14,2.7,1. Nulo,#A1A1A1,02/09/2026
-Serra da Raiz,56,0,0.4,1. Nulo,#A1A1A1,02/09/2026
-Sossêgo,45,14,1.7,1. Nulo,#A1A1A1,02/09/2026
-Serraria,61,0,0.2,1. Nulo,#A1A1A1,02/09/2026
-Sobrado,49,0,0.9,1. Nulo,#A1A1A1,02/09/2026
-Soledade,40,14,3.1,1. Nulo,#A1A1A1,02/09/2026
-Sumé,32,14,7.9,2. Baixo,#C0C276,02/09/2026
-Tacima,49,0,0.9,1. Nulo,#A1A1A1,02/09/2026
-Taperoá,36,28,5.5,2. Baixo,#C0C276,02/09/2026
-Várzea,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Boa Ventura,27,45,16.7,4. Alto (Alerta),#DE5C0B,02/09/2026
-Olho d'Água,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-Bom Sucesso,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Pombal,30,13,9.9,2. Baixo,#C0C276,01/09/2026
-Juru,22,40,26.5,5. Muito Alto,#DE1010,02/09/2026
-Princesa Isabel,22,40,26.5,5. Muito Alto,#DE1010,02/09/2026
-Santana de Mangueira,28,40,14.6,4. Alto (Alerta),#DE5C0B,02/09/2026
-Diamante,23,28,22.6,5. Muito Alto,#DE1010,02/09/2026
-Pedra Branca,27,45,16.7,4. Alto (Alerta),#DE5C0B,02/09/2026
-Piancó,28,14,12.4,3. Moderado,#E8A523,02/09/2026
-Igaracy,28,14,12.4,3. Moderado,#E8A523,02/09/2026
-Curral Velho,27,45,16.7,4. Alto (Alerta),#DE5C0B,02/09/2026
-Bernardino Batista,30,14,10.0,2. Baixo,#C0C276,02/09/2026
-Conceição,23,14,20.9,5. Muito Alto,#DE1010,02/09/2026
-São José da Lagoa Tapada,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Manaíra,24,40,21.9,5. Muito Alto,#DE1010,02/09/2026
-Nazarezinho,30,14,10.0,2. Baixo,#C0C276,02/09/2026
-São José de Espinharas,27,40,16.2,4. Alto (Alerta),#DE5C0B,02/09/2026
-Brejo dos Santos,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Santa Cruz,28,40,14.6,4. Alto (Alerta),#DE5C0B,02/09/2026
-Poço Dantas,31,28,9.7,2. Baixo,#C0C276,02/09/2026
-Mato Grosso,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
+São José dos Cordeiros,31,15,8.9,2. Baixo,#C0C276,03/09/2026
+São Mamede,22,15,23.1,5. Muito Alto,#DE1010,03/09/2026
+São Miguel de Taipu,58,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Serra Branca,32,15,8.0,2. Baixo,#C0C276,03/09/2026
+Serra da Raiz,62,1,0.2,1. Nulo,#A1A1A1,03/09/2026
+Sossêgo,42,15,2.4,1. Nulo,#A1A1A1,03/09/2026
+Serraria,67,1,0.1,1. Nulo,#A1A1A1,03/09/2026
+Sobrado,57,1,0.3,1. Nulo,#A1A1A1,03/09/2026
+Soledade,38,15,4.0,1. Nulo,#A1A1A1,03/09/2026
+Sumé,28,15,12.5,3. Moderado,#E8A523,03/09/2026
+Tacima,55,1,0.4,1. Nulo,#A1A1A1,03/09/2026
+Taperoá,32,29,8.8,2. Baixo,#C0C276,03/09/2026
+Várzea,24,15,19.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Boa Ventura,25,45,20.5,5. Muito Alto,#DE1010,03/09/2026
+Olho d'Água,21,15,25.4,5. Muito Alto,#DE1010,03/09/2026
+Bom Sucesso,29,15,11.2,3. Moderado,#E8A523,03/09/2026
+Pombal,27,15,13.9,3. Moderado,#E8A523,03/09/2026
+Juru,21,41,29.1,5. Muito Alto,#DE1010,03/09/2026
+Princesa Isabel,20,41,31.8,6. Crítico,#96002D,03/09/2026
+Santana de Mangueira,22,41,26.6,5. Muito Alto,#DE1010,03/09/2026
+Diamante,25,29,18.7,4. Alto (Alerta),#DE5C0B,03/09/2026
+Pedra Branca,21,45,29.7,5. Muito Alto,#DE1010,03/09/2026
+Piancó,29,15,11.2,3. Moderado,#E8A523,03/09/2026
+Igaracy,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Curral Velho,24,45,22.6,5. Muito Alto,#DE1010,03/09/2026
+Bernardino Batista,27,15,13.9,3. Moderado,#E8A523,03/09/2026
+Conceição,25,15,17.2,4. Alto (Alerta),#DE5C0B,03/09/2026
+São José da Lagoa Tapada,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Manaíra,19,41,34.5,6. Crítico,#96002D,03/09/2026
+Nazarezinho,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+São José de Espinharas,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Brejo dos Santos,32,15,8.0,2. Baixo,#C0C276,03/09/2026
+Santa Cruz,28,41,14.7,4. Alto (Alerta),#DE5C0B,03/09/2026
+Poço Dantas,33,29,7.8,2. Baixo,#C0C276,03/09/2026
+Mato Grosso,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
 Santa Helena,29,45,13.5,3. Moderado,#E8A523,02/09/2026
-Triunfo,27,40,16.2,4. Alto (Alerta),#DE5C0B,02/09/2026
-Paulista,31,39,10.5,3. Moderado,#E8A523,01/09/2026
-Uiraúna,28,29,13.6,3. Moderado,#E8A523,02/09/2026
-Coremas,34,14,6.3,2. Baixo,#C0C276,02/09/2026
-Aparecida,28,14,12.4,3. Moderado,#E8A523,02/09/2026
-Mãe d'Água,24,14,18.9,4. Alto (Alerta),#DE5C0B,02/09/2026
-Água Branca,22,38,26.2,5. Muito Alto,#DE1010,02/09/2026
-São Bento,24,40,21.9,5. Muito Alto,#DE1010,02/09/2026
-Poço de José de Moura,27,27,15.0,4. Alto (Alerta),#DE5C0B,01/09/2026
-Santana dos Garrotes,27,37,15.9,4. Alto (Alerta),#DE5C0B,01/09/2026
-Malta,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
+Triunfo,25,41,20.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Paulista,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Uiraúna,26,30,16.9,4. Alto (Alerta),#DE5C0B,03/09/2026
+Coremas,29,15,11.2,3. Moderado,#E8A523,03/09/2026
+Aparecida,24,15,19.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Mãe d'Água,23,15,21.0,5. Muito Alto,#DE1010,03/09/2026
+Água Branca,24,39,21.8,5. Muito Alto,#DE1010,03/09/2026
+São Bento,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Poço de José de Moura,25,29,18.7,4. Alto (Alerta),#DE5C0B,03/09/2026
+Santana dos Garrotes,20,39,31.5,6. Crítico,#96002D,03/09/2026
+Malta,27,15,13.9,3. Moderado,#E8A523,03/09/2026
 Carrapateira,27,38,16.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Vista Serrana,26,42,18.2,4. Alto (Alerta),#DE5C0B,02/09/2026
+Vista Serrana,27,43,16.5,4. Alto (Alerta),#DE5C0B,03/09/2026
 São Francisco,28,40,14.6,4. Alto (Alerta),#DE5C0B,02/09/2026
-Cachoeira dos Índios,31,28,9.7,2. Baixo,#C0C276,02/09/2026
-Santa Teresinha,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-Brejo do Cruz,24,40,21.9,5. Muito Alto,#DE1010,02/09/2026
-Belém do Brejo do Cruz,26,40,18.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Lagoa,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-Marizópolis,30,45,12.1,3. Moderado,#E8A523,02/09/2026
-Jericó,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
-Joca Claudino,30,28,10.9,3. Moderado,#E8A523,02/09/2026
-Lastro,28,40,14.6,4. Alto (Alerta),#DE5C0B,02/09/2026
-Catolé do Rocha,28,28,13.6,3. Moderado,#E8A523,02/09/2026
-São José de Piranhas,28,45,15.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Aguiar,27,14,13.8,3. Moderado,#E8A523,02/09/2026
-Riacho dos Cavalos,24,42,22.2,5. Muito Alto,#DE1010,02/09/2026
-São José de Princesa,24,40,21.9,5. Muito Alto,#DE1010,02/09/2026
-Sousa,29,40,13.1,3. Moderado,#E8A523,02/09/2026
-Cajazeiras,32,14,7.9,2. Baixo,#C0C276,02/09/2026
-Patos,30,27,10.8,3. Moderado,#E8A523,31/08/2026
-São Domingos,29,14,11.1,3. Moderado,#E8A523,02/09/2026
-Bom Jesus,29,45,13.5,3. Moderado,#E8A523,02/09/2026
-Vieirópolis,28,45,15.0,4. Alto (Alerta),#DE5C0B,02/09/2026
-Catingueira,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-Cajazeirinhas,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
-Condado,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
+Cachoeira dos Índios,26,29,16.8,4. Alto (Alerta),#DE5C0B,03/09/2026
+Santa Teresinha,23,15,21.0,5. Muito Alto,#DE1010,03/09/2026
+Brejo do Cruz,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Belém do Brejo do Cruz,29,41,13.2,3. Moderado,#E8A523,03/09/2026
+Lagoa,28,15,12.5,3. Moderado,#E8A523,03/09/2026
+Marizópolis,28,45,15.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Jericó,27,15,13.9,3. Moderado,#E8A523,03/09/2026
+Joca Claudino,27,29,15.2,4. Alto (Alerta),#DE5C0B,03/09/2026
+Lastro,27,41,16.3,4. Alto (Alerta),#DE5C0B,03/09/2026
+Catolé do Rocha,33,29,7.8,2. Baixo,#C0C276,03/09/2026
+São José de Piranhas,25,45,20.5,5. Muito Alto,#DE1010,03/09/2026
+Aguiar,29,15,11.2,3. Moderado,#E8A523,03/09/2026
+Riacho dos Cavalos,26,43,18.3,4. Alto (Alerta),#DE5C0B,03/09/2026
+São José de Princesa,21,41,29.1,5. Muito Alto,#DE1010,03/09/2026
+Sousa,26,41,18.1,4. Alto (Alerta),#DE5C0B,03/09/2026
+Cajazeiras,28,15,12.5,3. Moderado,#E8A523,03/09/2026
+Patos,22,30,25.1,5. Muito Alto,#DE1010,03/09/2026
+São Domingos,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Bom Jesus,25,45,20.5,5. Muito Alto,#DE1010,03/09/2026
+Vieirópolis,28,45,15.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Catingueira,24,15,19.0,4. Alto (Alerta),#DE5C0B,03/09/2026
+Cajazeirinhas,29,15,11.2,3. Moderado,#E8A523,03/09/2026
+Condado,28,15,12.5,3. Moderado,#E8A523,03/09/2026
 São Bentinho,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-São João do Rio do Peixe,26,28,16.7,4. Alto (Alerta),#DE5C0B,01/09/2026
-Emas,25,14,17.1,4. Alto (Alerta),#DE5C0B,02/09/2026
-Serra Grande,27,14,13.8,3. Moderado,#E8A523,02/09/2026
-Imaculada,24,38,21.7,5. Muito Alto,#DE1010,02/09/2026
-Santa Inês,25,45,20.5,5. Muito Alto,#DE1010,02/09/2026
-Monte Horebe,26,45,18.5,4. Alto (Alerta),#DE5C0B,02/09/2026
+São João do Rio do Peixe,25,30,18.8,4. Alto (Alerta),#DE5C0B,03/09/2026
+Emas,26,15,15.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Serra Grande,28,15,12.5,3. Moderado,#E8A523,03/09/2026
+Imaculada,23,39,24.0,5. Muito Alto,#DE1010,03/09/2026
+Santa Inês,22,45,27.2,5. Muito Alto,#DE1010,03/09/2026
+Monte Horebe,26,45,18.5,4. Alto (Alerta),#DE5C0B,03/09/2026
 Ibiara,24,14,18.9,4. Alto (Alerta),#DE5C0B,02/09/2026
-Tavares,24,38,21.7,5. Muito Alto,#DE1010,02/09/2026
-Bonito de Santa Fé,25,45,20.5,5. Muito Alto,#DE1010,02/09/2026
-Itaporanga,28,14,12.4,3. Moderado,#E8A523,02/09/2026
-Nova Olinda,27,45,16.7,4. Alto (Alerta),#DE5C0B,02/09/2026
+Tavares,24,39,21.8,5. Muito Alto,#DE1010,03/09/2026
+Bonito de Santa Fé,26,45,18.5,4. Alto (Alerta),#DE5C0B,03/09/2026
+Itaporanga,27,15,13.9,3. Moderado,#E8A523,03/09/2026
+Nova Olinda,21,45,29.7,5. Muito Alto,#DE1010,03/09/2026
 São José de Caiana,26,14,15.4,4. Alto (Alerta),#DE5C0B,02/09/2026
