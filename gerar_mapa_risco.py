@@ -11,43 +11,39 @@ from folium.features import GeoJsonTooltip
 from branca.element import Template, MacroElement
 from datetime import datetime
 
-# --- CONFIGURAÇÃO DE TEMPO (FUSO DE BRASÍLIA) ---
+# --- CONFIGURACAO DE TEMPO (FUSO DE BRASILIA) ---
 fuso_br = pytz.timezone('America/Sao_Paulo')
 agora_br = datetime.now(fuso_br)
 data_hoje_str = agora_br.strftime('%d/%m/%Y')
 hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
-print("1. Carregando as camadas do GeoPackage da Paraíba...")
-# Camadas originais
+print("1. Carregando as camadas do GeoPackage da Paraiba...")
 gdf_poligonos = gpd.read_file('dados_espaciais.gpkg', layer='lml_municipio_pb')
 gdf_poligonos = gdf_poligonos.to_crs(epsg=4326)
 
 gdf_pontos = gpd.read_file('dados_espaciais.gpkg', layer='pontos_centroides_municipios')
 gdf_pontos = gdf_pontos.to_crs(epsg=4326)
 
-# Novas camadas
 gdf_estado = gpd.read_file('dados_espaciais.gpkg', layer='lml_estado')
 gdf_estado = gdf_estado.to_crs(epsg=4326)
 
 gdf_uc = gpd.read_file('dados_espaciais.gpkg', layer='uc_BR')
 gdf_uc = gdf_uc.to_crs(epsg=4326)
 
-# Extração de coordenadas dos pontos
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
-print("2. Carregando histórico anterior (Sistema de Checkpoint Inteligente)...")
+print("2. Carregando historico anterior (Sistema de Checkpoint Inteligente)...")
 arquivo_historico = 'historico_risco.csv'
 if os.path.exists(arquivo_historico):
     df_historico = pd.read_csv(arquivo_historico)
     historico_dict = df_historico.set_index('nome').to_dict('index')
-    print(" -> Histórico encontrado e carregado com sucesso!")
+    print(" -> Historico encontrado e carregado com sucesso!")
 else:
     historico_dict = {}
-    print(" -> Primeiro uso: Nenhum histórico anterior encontrado.")
+    print(" -> Primeiro uso: Nenhum historico anterior encontrado.")
 
-print("3. Buscando dados climáticos na API...")
-# Embaralha a ordem das cidades para evitar que as mesmas sofram com eventuais falhas da API
+print("3. Buscando dados climaticos na API...")
 gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
 
 gdf_pontos['Umidade_13h'] = 0.0
@@ -66,9 +62,8 @@ for index, row in gdf_pontos.iterrows():
     
     print(f"Processando [{index + 1}/{total_municipios}]: {nome_cidade}...")
     
-    # CACHE INTELIGENTE
     if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
-        print(f"  -> Já atualizado hoje! Usando cache local (Checkpoint).")
+        print("  -> Ja atualizado hoje. Usando cache local (Checkpoint).")
         memoria_cidade = historico_dict[nome_cidade]
         gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
         gdf_pontos.at[index, 'DSC'] = memoria_cidade.get('DSC', 0)
@@ -85,7 +80,7 @@ for index, row in gdf_pontos.iterrows():
         try:
             response = requests.get(url, timeout=(5, 10))
             if response.status_code == 429:
-                print(f"  -> Limite da API atingido. Freando bruscamente por 30 segundos...")
+                print("  -> Limite da API atingido. Aguardando 30 segundos...")
                 time.sleep(30)
                 continue
             response.raise_for_status() 
@@ -94,7 +89,7 @@ for index, row in gdf_pontos.iterrows():
             break
         except Exception as e:
             tempo_espera = (tentativa + 1) * 5
-            print(f"  -> Falha de conexão. Aguardando {tempo_espera}s para tentar de novo...")
+            print(f"  -> Falha de conexao. Aguardando {tempo_espera}s para nova tentativa...")
             time.sleep(tempo_espera)
             
     if sucesso:
@@ -106,7 +101,7 @@ for index, row in gdf_pontos.iterrows():
             idx_13h = horas.index(hoje_str_api)
             umidade_hoje = umidades[idx_13h]
         else:
-            umidade_hoje = np.nanmean(umidades[-12:-6])
+            umidade_hoje = np.nanmean(np.array(umidades[-12:-6], dtype=float))
             
         chuvas_diarias = dados['daily']['precipitation_sum']
         chuvas_passado = chuvas_diarias[:-1] 
@@ -118,15 +113,19 @@ for index, row in gdf_pontos.iterrows():
             else:
                 break
                 
-        Z = 1.4285 - (0.1244 * umidade_hoje) + (0.0072 * dsc)
-        probabilidade = (1 / (1 + math.exp(-Z))) * 100
-        
-        if probabilidade < 5.0: classe, cor = '1. Nulo', '#A1A1A1' 
-        elif probabilidade < 10.0: classe, cor = '2. Baixo', '#C0C276'
-        elif probabilidade < 14.0: classe, cor = '3. Moderado', '#E8A523'
-        elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
-        elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#DE1010'
-        else: classe, cor = '6. Crítico', '#96002D'
+        if pd.isna(umidade_hoje) or umidade_hoje is None:
+            probabilidade = 0.0
+            classe, cor = 'Sem Dados', '#C7C7C7'
+        else:
+            Z = 0.7707 - (0.1189 * float(umidade_hoje)) + (0.0082 * dsc)
+            probabilidade = (1 / (1 + math.exp(-Z))) * 100
+            
+            if probabilidade < 5.0: classe, cor = '1. Nulo', '#A1A1A1' 
+            elif probabilidade < 10.0: classe, cor = '2. Baixo', '#C0C276'
+            elif probabilidade < 14.0: classe, cor = '3. Moderado', '#E8A523'
+            elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
+            elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#DE1010'
+            else: classe, cor = '6. Critico', '#96002D'
 
         historico_dict[nome_cidade] = {
             'Umidade_13h': umidade_hoje,
@@ -138,15 +137,15 @@ for index, row in gdf_pontos.iterrows():
         }
         
     else:
-        print(f" - API falhou para {nome_cidade}. Buscando na memória...")
+        print(f" - API falhou para {nome_cidade}. Buscando na memoria...")
         if nome_cidade not in historico_dict:
-            print(f"  -> SEM DADOS: A cidade não estava na memória.")
+            print("  -> SEM DADOS: A cidade nao estava na memoria.")
             historico_dict[nome_cidade] = {
                 'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
                 'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#C7C7C7', 'Data_Atualizacao': 'Falhou'
             }
         else:
-            print(f"  -> SUCESSO: Usando dados antigos.")
+            print("  -> SUCESSO: Usando dados antigos.")
 
     memoria_cidade = historico_dict[nome_cidade]
     gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
@@ -163,7 +162,7 @@ for index, row in gdf_pontos.iterrows():
     
     time.sleep(2.0)
 
-print("4. Unindo os resultados matemáticos aos polígonos do mapa...")
+print("4. Unindo os resultados matematicos aos poligonos do mapa...")
 colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
@@ -175,12 +174,10 @@ gdf_final['Data_Atualizacao'] = gdf_final.get('Data_Atualizacao', pd.Series(['De
 print("5. Preparando o Mapa Interativo com as Novas Camadas...")
 mapa_pb = folium.Map(location=[-7.115, -36.5], zoom_start=7, tiles=None)
 
-# 5.1 Adicionando Mapas Base
-folium.TileLayer('cartodbdark_matter', name="Modo Noturno (Padrão)").add_to(mapa_pb)
+folium.TileLayer('cartodbdark_matter', name="Modo Noturno (Padrao)").add_to(mapa_pb)
 folium.TileLayer('cartodbpositron', name="Modo Claro").add_to(mapa_pb)
-folium.TileLayer('OpenStreetMap', name="Ruas e Satélite (OSM)").add_to(mapa_pb)
+folium.TileLayer('OpenStreetMap', name="Ruas e Satelite (OSM)").add_to(mapa_pb)
 
-# 5.2 Camada de Limite do Estado (Apenas Contorno Fundo)
 folium.GeoJson(
     gdf_estado,
     name='Limite Estadual (PB)',
@@ -192,17 +189,16 @@ folium.GeoJson(
     interactive=False
 ).add_to(mapa_pb)
 
-# 5.3 Camada dos Municípios (Com interatividade)
 tooltip_mun = GeoJsonTooltip(
     fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h', 'Data_Atualizacao'],
-    aliases=['Município:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade às 13h (%):', 'Última Atualização:'],
+    aliases=['Municipio:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade as 13h (%):', 'Ultima Atualizacao:'],
     localize=True, sticky=False, labels=True,
     style="background-color: #F0EFEF; border: 2px solid black; border-radius: 3px; box-shadow: 3px;"
 )
 
 folium.GeoJson(
     gdf_final,
-    name='Municípios - Risco de Fogo',
+    name='Municipios - Risco de Fogo',
     style_function=lambda feature: {
         'fillColor': feature['properties'].get('Cor_Risco', '#bdc3c7'),
         'color': '#333333', 
@@ -217,7 +213,6 @@ folium.GeoJson(
     tooltip=tooltip_mun
 ).add_to(mapa_pb)
 
-# 5.4 Camada de Unidades de Conservação (uc_BR) - Linhas contínuas
 def estilo_uc(feature):
     esfera = feature['properties'].get('esfera', '')
     cor_contorno = '#ffffff'
@@ -228,25 +223,24 @@ def estilo_uc(feature):
     return {
         'color': cor_contorno,
         'weight': 2.5,
-        'fillOpacity': 0 # Removido o dashArray para linhas contínuas
+        'fillOpacity': 0 
     }
 
 tooltip_uc = GeoJsonTooltip(
     fields=['nome_uc', 'esfera', 'categoria'],
-    aliases=['Unidade de Conservação:', 'Esfera de Gestão:', 'Categoria:'],
+    aliases=['Unidade de Conservacao:', 'Esfera de Gestao:', 'Categoria:'],
     localize=True, sticky=False, labels=True,
     style="background-color: #2c3e50; color: #ecf0f1; border: 1px solid white; border-radius: 3px;"
 )
 
 folium.GeoJson(
     gdf_uc,
-    name='Unidades de Conservação (UC)',
+    name='Unidades de Conservacao (UC)',
     style_function=estilo_uc,
     tooltip=tooltip_uc,
     show=False 
 ).add_to(mapa_pb)
 
-# 5.5 Inserindo a Legenda Customizada no Mapa
 legenda_html = '''
 {% macro html(this, kwargs) %}
 <div style="
@@ -262,11 +256,11 @@ legenda_html = '''
     <i style="background: #E8A523; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">3. Moderado</span><br>
     <i style="background: #DE5C0B; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">4. Alto (Alerta)</span><br>
     <i style="background: #DE1010; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">5. Muito Alto</span><br>
-    <i style="background: #96002D; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">6. Crítico</span><br>
+    <i style="background: #96002D; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">6. Critico</span><br>
     
     <hr style="margin: 10px 0; border-top: 1px solid #ccc;">
     
-    <h6 style="margin-top: 0; margin-bottom: 8px; font-weight: bold; text-align: center; color: #333;">Unidades de Conservação</h6>
+    <h6 style="margin-top: 0; margin-bottom: 8px; font-weight: bold; text-align: center; color: #333;">Unidades de Conservacao</h6>
     <i style="border-top: 3px solid #005200; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> Federal<br>
     <i style="border-top: 3px solid #1B7A1B; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> <span style="display:inline-block; margin-top:2px;">Estadual</span><br>
     <i style="border-top: 3px solid #179983; width: 16px; height: 0; float: left; margin-top: 6px; margin-right: 8px;"></i> <span style="display:inline-block; margin-top:2px;">Municipal</span><br>
@@ -277,7 +271,6 @@ macro = MacroElement()
 macro._template = Template(legenda_html)
 mapa_pb.get_root().add_child(macro)
 
-# Botão Controlador de Camadas no canto superior direito
 folium.LayerControl(collapsed=False).add_to(mapa_pb)
 mapa_html = mapa_pb._repr_html_()
 
@@ -285,29 +278,27 @@ print("6. Gerando Ranking do Top 10 e montando Dashboard HTML final...")
 top_10 = gdf_final.sort_values(by='Probabilidade_Fogo', ascending=False).head(10)
 
 top_10_display = top_10.rename(columns={
-    'nome': 'Município', 
+    'nome': 'Municipio', 
     'Probabilidade_Fogo': 'Risco (%)', 
     'Classe_Risco': 'Classe'
 })
 
-tabela_html = top_10_display[['Município', 'Risco (%)', 'Classe']].to_html(
+tabela_html = top_10_display[['Municipio', 'Risco (%)', 'Classe']].to_html(
     index=False, 
     classes='table table-striped table-hover table-sm text-start',
     header=True
 )
 
 tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
-# Emojis retirados dos destaques da tabela
-tabela_html = tabela_html.replace('6. Crítico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Crítico</span>')
+tabela_html = tabela_html.replace('6. Critico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Critico</span>')
 tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #B02719; font-weight: bold;">5. Muito Alto</span>')
 
-# HTML Final Limpo, sem emojis e com a barra lateral focada no ranking
 pagina_completa = f"""
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <title>Painel de Risco - Índice Mata Branca</title>
+    <title>Painel de Risco - Indice Mata Branca</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body, html {{ height: 100%; margin: 0; padding: 0; }}
@@ -322,13 +313,25 @@ pagina_completa = f"""
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-3 sidebar shadow-sm">
-                <h4 class="mb-3 text-danger fw-bold">Índice Mata Branca</h4>
-                <p class="text-muted small mb-4">Atualizado em: {hora_exibicao} (Horário de Brasília)</p>
+                <h4 class="mb-3 text-danger fw-bold">Indice Mata Branca</h4>
+                <p class="text-muted small mb-4">Atualizado em: {hora_exibicao} (Horario de Brasilia)</p>
                 <hr>
                 <h6 class="fw-bold mb-3 text-dark">Top 10 Cidades em Risco</h6>
                 {tabela_html}
                 <hr>
-                <p class="small text-muted mt-3">Metodologia: Equação de Regressão Logística baseada em Umidade Relativa e Dias Sem Chuva (DSC). <br><br><strong>Recomendado para uso tático pelo Corpo de Bombeiros da Paraíba.</strong></p>
+                <h6 class="fw-bold mb-3 text-dark">Modelo Matematico Simplificado</h6>
+                <div class="bg-white p-3 border rounded shadow-sm mb-3">
+                    <p class="mb-2 text-center" style="font-family: monospace; font-size: 1.1em; color: #333;">
+                        <strong>Z = 0.7707 - 0.1189(H) + 0.0082(DSC)</strong><br>
+                        <strong>P = 1 / (1 + e<sup>-Z</sup>)</strong>
+                    </p>
+                    <ul class="small text-muted mb-0 ps-3">
+                        <li><strong>H:</strong> Umidade Relativa as 13h (%)</li>
+                        <li><strong>DSC:</strong> Dias Sem Chuva (acumulado de dias consecutivos com precipitacao &le; 2.4 mm)</li>
+                        <li><strong>P:</strong> Probabilidade de Ignicao (%)</li>
+                    </ul>
+                </div>
+                <p class="small text-muted mt-3">Metodologia: Equacao de Regressao Logistica treinada especificamente para o semiárido.<br><br><strong>Recomendado para uso tatico pelo Corpo de Bombeiros da Paraiba.</strong></p>
             </div>
             <div class="col-md-9 map-container">
                 {mapa_html}
