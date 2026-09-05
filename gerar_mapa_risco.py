@@ -49,8 +49,8 @@ else:
 print("3. Buscando dados climaticos na API...")
 gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
 
-# Variaveis atualizadas para o Modelo Simplificado Vencedor
-gdf_pontos['Depressao_Psicrometrica'] = 0.0
+# Variaveis atualizadas com o rigor meteorologico (Depressao do Ponto de Orvalho)
+gdf_pontos['Depressao_Ponto_Orvalho'] = 0.0
 gdf_pontos['DSC_Soares'] = 0.0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
 gdf_pontos['Classe_Risco'] = ''
@@ -70,7 +70,7 @@ for index, row in gdf_pontos.iterrows():
     if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
         print(f"  -> Ja atualizado hoje! Usando cache local (Checkpoint).")
         memoria_cidade = historico_dict[nome_cidade]
-        gdf_pontos.at[index, 'Depressao_Psicrometrica'] = memoria_cidade.get('Depressao_Psicrometrica', np.nan)
+        gdf_pontos.at[index, 'Depressao_Ponto_Orvalho'] = memoria_cidade.get('Depressao_Ponto_Orvalho', np.nan)
         gdf_pontos.at[index, 'DSC_Soares'] = memoria_cidade.get('DSC_Soares', 0.0)
         gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
         gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
@@ -78,7 +78,7 @@ for index, row in gdf_pontos.iterrows():
         gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade.get('Data_Atualizacao', 'Dado Antigo')
         continue
     
-    # API ATUALIZADA: Buscando Temperatura do Ar e de Orvalho (para subtrair)
+    # API ATUALIZADA: Buscando Temperatura do Ar e de Orvalho
     url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,dew_point_2m&daily=precipitation_sum&past_days=45&forecast_days=1&timezone=America%2FSao_Paulo"
     
     sucesso = False
@@ -134,11 +134,11 @@ for index, row in gdf_pontos.iterrows():
         else:
             depressao = float(temp_hoje) - float(orvalho_hoje)
             
-            # FORMULA MATEMATICA ATUALIZADA (Ockham)
+            # FORMULA MATEMATICA VENCEDORA
             Z = -7.3410 + (0.2060 * depressao) + (0.0017 * dsc_soares)
             probabilidade = (1 / (1 + math.exp(-Z))) * 100
             
-            # NOVOS LIMITES (Calibrados para Recall 92.4%)
+            # LIMITES OPERACIONAIS OTIMIZADOS
             if probabilidade < 0.4: classe, cor = '1. Nulo', '#A1A1A1' 
             elif probabilidade < 1.9: classe, cor = '2. Baixo', '#C0C276'
             elif probabilidade < 2.9: classe, cor = '3. Moderado', '#E8A523'
@@ -147,7 +147,7 @@ for index, row in gdf_pontos.iterrows():
             else: classe, cor = '6. Critico', '#82001F'
 
         historico_dict[nome_cidade] = {
-            'Depressao_Psicrometrica': round(depressao, 2) if pd.notna(depressao) else np.nan,
+            'Depressao_Ponto_Orvalho': round(depressao, 2) if pd.notna(depressao) else np.nan,
             'DSC_Soares': dsc_soares,
             'Probabilidade_Fogo': round(probabilidade, 1),
             'Classe_Risco': classe,
@@ -159,12 +159,12 @@ for index, row in gdf_pontos.iterrows():
         print(f" - API falhou para {nome_cidade}. Buscando na memoria...")
         if nome_cidade not in historico_dict:
             historico_dict[nome_cidade] = {
-                'Depressao_Psicrometrica': np.nan, 'DSC_Soares': 0.0, 'Probabilidade_Fogo': 0.0,
+                'Depressao_Ponto_Orvalho': np.nan, 'DSC_Soares': 0.0, 'Probabilidade_Fogo': 0.0,
                 'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#C7C7C7', 'Data_Atualizacao': 'Falhou'
             }
 
     memoria_cidade = historico_dict[nome_cidade]
-    gdf_pontos.at[index, 'Depressao_Psicrometrica'] = memoria_cidade.get('Depressao_Psicrometrica', np.nan)
+    gdf_pontos.at[index, 'Depressao_Ponto_Orvalho'] = memoria_cidade.get('Depressao_Ponto_Orvalho', np.nan)
     gdf_pontos.at[index, 'DSC_Soares'] = memoria_cidade.get('DSC_Soares', 0.0)
     gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
@@ -179,7 +179,7 @@ for index, row in gdf_pontos.iterrows():
     time.sleep(2.0)
 
 print("4. Unindo os resultados matematicos aos poligonos do mapa...")
-colunas_para_levar = ['nome', 'Depressao_Psicrometrica', 'DSC_Soares', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
+colunas_para_levar = ['nome', 'Depressao_Ponto_Orvalho', 'DSC_Soares', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
 gdf_final = gdf_poligonos.merge(df_resultados_pontos, on='nome', how='left')
@@ -205,10 +205,10 @@ folium.GeoJson(
     interactive=False
 ).add_to(mapa_pb)
 
-# Tooltip customizado com os novos nomes de variáveis
+# Tooltip customizado com os nomes rigorosos da meteorologia
 tooltip_mun = GeoJsonTooltip(
-    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC_Soares', 'Depressao_Psicrometrica', 'Data_Atualizacao'],
-    aliases=['Municipio:', 'Risco de Fogo (%):', 'Classe:', 'DSC (Fator Soares):', 'Depressao Psicrometrica (C):', 'Ultima Atualizacao:'],
+    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC_Soares', 'Depressao_Ponto_Orvalho', 'Data_Atualizacao'],
+    aliases=['Municipio:', 'Risco de Fogo (%):', 'Classe:', 'DSC (Fator Soares):', 'Depressão do Ponto de Orvalho (C):', 'Ultima Atualizacao:'],
     localize=True, sticky=False, labels=True,
     style="background-color: #F0EFEF; border: 2px solid black; border-radius: 3px; box-shadow: 3px;"
 )
@@ -310,7 +310,7 @@ tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
 tabela_html = tabela_html.replace('6. Critico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Critico</span>')
 tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #DE1010; font-weight: bold;">5. Muito Alto</span>')
 
-# Atualizacao do Corpo do HTML com as novas variaveis e formula simplificada
+# Atualizacao do Corpo do HTML com a metrica da Depressao do Ponto de Orvalho
 pagina_completa = f"""
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -344,7 +344,7 @@ pagina_completa = f"""
                         <strong>P = 1 / (1 + e<sup>-Z</sup>)</strong>
                     </p>
                     <ul class="small text-muted mb-0 ps-3">
-                        <li><strong>ΔT:</strong> Depressao Psicrometrica as 13h (Temp_Ar - Temp_Orvalho)</li>
+                        <li><strong>ΔT:</strong> Depressão do Ponto de Orvalho às 13h (Temp_Ar - Temp_Orvalho)</li>
                         <li><strong>DSC<sub>S</sub>:</strong> Dias Sem Chuva (metodo de abatimento logistico de Soares)</li>
                         <li><strong>P:</strong> Probabilidade de Ignicao (%)</li>
                     </ul>
