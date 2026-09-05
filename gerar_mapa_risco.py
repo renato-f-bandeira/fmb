@@ -18,18 +18,21 @@ data_hoje_str = agora_br.strftime('%d/%m/%Y')
 hora_exibicao = agora_br.strftime('%d/%m/%Y %H:%M')
 
 print("1. Carregando as camadas do GeoPackage da Paraiba...")
+# Camadas originais
 gdf_poligonos = gpd.read_file('dados_espaciais.gpkg', layer='lml_municipio_pb')
 gdf_poligonos = gdf_poligonos.to_crs(epsg=4326)
 
 gdf_pontos = gpd.read_file('dados_espaciais.gpkg', layer='pontos_centroides_municipios')
 gdf_pontos = gdf_pontos.to_crs(epsg=4326)
 
+# Novas camadas
 gdf_estado = gpd.read_file('dados_espaciais.gpkg', layer='lml_estado')
 gdf_estado = gdf_estado.to_crs(epsg=4326)
 
 gdf_uc = gpd.read_file('dados_espaciais.gpkg', layer='uc_BR')
 gdf_uc = gdf_uc.to_crs(epsg=4326)
 
+# Extracao de coordenadas dos pontos
 gdf_pontos['lat'] = gdf_pontos.geometry.y
 gdf_pontos['lon'] = gdf_pontos.geometry.x
 
@@ -46,8 +49,9 @@ else:
 print("3. Buscando dados climaticos na API...")
 gdf_pontos = gdf_pontos.sample(frac=1).reset_index(drop=True)
 
-gdf_pontos['Umidade_13h'] = 0.0
-gdf_pontos['DSC'] = 0
+# Variaveis atualizadas para o Modelo Simplificado Vencedor
+gdf_pontos['Depressao_Psicrometrica'] = 0.0
+gdf_pontos['DSC_Soares'] = 0.0
 gdf_pontos['Probabilidade_Fogo'] = 0.0
 gdf_pontos['Classe_Risco'] = ''
 gdf_pontos['Cor_Risco'] = ''
@@ -62,25 +66,27 @@ for index, row in gdf_pontos.iterrows():
     
     print(f"Processando [{index + 1}/{total_municipios}]: {nome_cidade}...")
     
+    # CACHE INTELIGENTE
     if nome_cidade in historico_dict and historico_dict[nome_cidade].get('Data_Atualizacao') == data_hoje_str:
-        print("  -> Ja atualizado hoje. Usando cache local (Checkpoint).")
+        print(f"  -> Ja atualizado hoje! Usando cache local (Checkpoint).")
         memoria_cidade = historico_dict[nome_cidade]
-        gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
-        gdf_pontos.at[index, 'DSC'] = memoria_cidade.get('DSC', 0)
+        gdf_pontos.at[index, 'Depressao_Psicrometrica'] = memoria_cidade.get('Depressao_Psicrometrica', np.nan)
+        gdf_pontos.at[index, 'DSC_Soares'] = memoria_cidade.get('DSC_Soares', 0.0)
         gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
         gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
         gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade.get('Cor_Risco', '#bdc3c7')
         gdf_pontos.at[index, 'Data_Atualizacao'] = memoria_cidade.get('Data_Atualizacao', 'Dado Antigo')
         continue
     
-    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=relative_humidity_2m&daily=precipitation_sum&past_days=45&forecast_days=1&timezone=America%2FSao_Paulo"
+    # API ATUALIZADA: Buscando Temperatura do Ar e de Orvalho (para subtrair)
+    url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&hourly=temperature_2m,dew_point_2m&daily=precipitation_sum&past_days=45&forecast_days=1&timezone=America%2FSao_Paulo"
     
     sucesso = False
     for tentativa in range(3):
         try:
             response = requests.get(url, timeout=(5, 10))
             if response.status_code == 429:
-                print("  -> Limite da API atingido. Aguardando 30 segundos...")
+                print(f"  -> Limite da API atingido. Freando bruscamente por 30 segundos...")
                 time.sleep(30)
                 continue
             response.raise_for_status() 
@@ -89,47 +95,60 @@ for index, row in gdf_pontos.iterrows():
             break
         except Exception as e:
             tempo_espera = (tentativa + 1) * 5
-            print(f"  -> Falha de conexao. Aguardando {tempo_espera}s para nova tentativa...")
+            print(f"  -> Falha de conexao. Aguardando {tempo_espera}s para tentar de novo...")
             time.sleep(tempo_espera)
             
     if sucesso:
         horas = dados['hourly']['time']
-        umidades = dados['hourly']['relative_humidity_2m']
+        temperaturas = dados['hourly']['temperature_2m']
+        orvalhos = dados['hourly']['dew_point_2m']
         hoje_str_api = agora_br.strftime('%Y-%m-%d') + "T13:00"
         
+        # Extracao das 13h
         if hoje_str_api in horas:
             idx_13h = horas.index(hoje_str_api)
-            umidade_hoje = umidades[idx_13h]
+            temp_hoje = temperaturas[idx_13h]
+            orvalho_hoje = orvalhos[idx_13h]
         else:
-            umidade_hoje = np.nanmean(np.array(umidades[-12:-6], dtype=float))
+            temp_hoje = np.nanmean(np.array(temperaturas[-12:-6], dtype=float))
+            orvalho_hoje = np.nanmean(np.array(orvalhos[-12:-6], dtype=float))
             
         chuvas_diarias = dados['daily']['precipitation_sum']
         chuvas_passado = chuvas_diarias[:-1] 
         
-        dsc = 0
-        for chuva in reversed(chuvas_passado):
-            if chuva is None or chuva <= 2.4:
-                dsc += 1
-            else:
-                break
-                
-        if pd.isna(umidade_hoje) or umidade_hoje is None:
+        # LOGICA DE ABATIMENTO DE SOARES (Cronologico)
+        dsc_soares = 0.0
+        for chuva in chuvas_passado:
+            if chuva is None or chuva <= 2.4: dsc_soares += 1.0
+            elif chuva <= 4.9: dsc_soares *= 0.7
+            elif chuva <= 9.9: dsc_soares *= 0.4
+            elif chuva <= 12.9: dsc_soares *= 0.2
+            else: dsc_soares = 0.0
+            
+        dsc_soares = round(dsc_soares, 2)
+        
+        if pd.isna(temp_hoje) or pd.isna(orvalho_hoje) or temp_hoje is None or orvalho_hoje is None:
             probabilidade = 0.0
+            depressao = np.nan
             classe, cor = 'Sem Dados', '#C7C7C7'
         else:
-            Z = 0.7707 - (0.1189 * float(umidade_hoje)) + (0.0082 * dsc)
+            depressao = float(temp_hoje) - float(orvalho_hoje)
+            
+            # FORMULA MATEMATICA ATUALIZADA (Ockham)
+            Z = -7.3410 + (0.2060 * depressao) + (0.0017 * dsc_soares)
             probabilidade = (1 / (1 + math.exp(-Z))) * 100
             
-            if probabilidade < 5.0: classe, cor = '1. Nulo', '#A1A1A1' 
-            elif probabilidade < 10.0: classe, cor = '2. Baixo', '#C0C276'
-            elif probabilidade < 14.0: classe, cor = '3. Moderado', '#E8A523'
-            elif probabilidade < 20.0: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
-            elif probabilidade < 30.0: classe, cor = '5. Muito Alto', '#DE1010'
-            else: classe, cor = '6. Critico', '#96002D'
+            # NOVOS LIMITES (Calibrados para Recall 92.4%)
+            if probabilidade < 0.4: classe, cor = '1. Nulo', '#A1A1A1' 
+            elif probabilidade < 1.9: classe, cor = '2. Baixo', '#C0C276'
+            elif probabilidade < 2.9: classe, cor = '3. Moderado', '#E8A523'
+            elif probabilidade < 4.8: classe, cor = '4. Alto (Alerta)', '#DE5C0B'
+            elif probabilidade < 7.6: classe, cor = '5. Muito Alto', '#DE1010'
+            else: classe, cor = '6. Critico', '#82001F'
 
         historico_dict[nome_cidade] = {
-            'Umidade_13h': umidade_hoje,
-            'DSC': dsc,
+            'Depressao_Psicrometrica': round(depressao, 2) if pd.notna(depressao) else np.nan,
+            'DSC_Soares': dsc_soares,
             'Probabilidade_Fogo': round(probabilidade, 1),
             'Classe_Risco': classe,
             'Cor_Risco': cor,
@@ -139,17 +158,14 @@ for index, row in gdf_pontos.iterrows():
     else:
         print(f" - API falhou para {nome_cidade}. Buscando na memoria...")
         if nome_cidade not in historico_dict:
-            print("  -> SEM DADOS: A cidade nao estava na memoria.")
             historico_dict[nome_cidade] = {
-                'Umidade_13h': np.nan, 'DSC': 0, 'Probabilidade_Fogo': 0.0,
+                'Depressao_Psicrometrica': np.nan, 'DSC_Soares': 0.0, 'Probabilidade_Fogo': 0.0,
                 'Classe_Risco': 'Sem Dados', 'Cor_Risco': '#C7C7C7', 'Data_Atualizacao': 'Falhou'
             }
-        else:
-            print("  -> SUCESSO: Usando dados antigos.")
 
     memoria_cidade = historico_dict[nome_cidade]
-    gdf_pontos.at[index, 'Umidade_13h'] = memoria_cidade.get('Umidade_13h', np.nan)
-    gdf_pontos.at[index, 'DSC'] = memoria_cidade.get('DSC', 0)
+    gdf_pontos.at[index, 'Depressao_Psicrometrica'] = memoria_cidade.get('Depressao_Psicrometrica', np.nan)
+    gdf_pontos.at[index, 'DSC_Soares'] = memoria_cidade.get('DSC_Soares', 0.0)
     gdf_pontos.at[index, 'Probabilidade_Fogo'] = memoria_cidade.get('Probabilidade_Fogo', 0.0)
     gdf_pontos.at[index, 'Classe_Risco'] = memoria_cidade.get('Classe_Risco', 'Sem Dados')
     gdf_pontos.at[index, 'Cor_Risco'] = memoria_cidade.get('Cor_Risco', '#bdc3c7')
@@ -163,7 +179,7 @@ for index, row in gdf_pontos.iterrows():
     time.sleep(2.0)
 
 print("4. Unindo os resultados matematicos aos poligonos do mapa...")
-colunas_para_levar = ['nome', 'Umidade_13h', 'DSC', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
+colunas_para_levar = ['nome', 'Depressao_Psicrometrica', 'DSC_Soares', 'Probabilidade_Fogo', 'Classe_Risco', 'Cor_Risco', 'Data_Atualizacao']
 df_resultados_pontos = gdf_pontos[colunas_para_levar]
 
 gdf_final = gdf_poligonos.merge(df_resultados_pontos, on='nome', how='left')
@@ -189,9 +205,10 @@ folium.GeoJson(
     interactive=False
 ).add_to(mapa_pb)
 
+# Tooltip customizado com os novos nomes de variáveis
 tooltip_mun = GeoJsonTooltip(
-    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC', 'Umidade_13h', 'Data_Atualizacao'],
-    aliases=['Municipio:', 'Risco de Fogo (%):', 'Classe:', 'Dias Sem Chuva:', 'Umidade as 13h (%):', 'Ultima Atualizacao:'],
+    fields=['nome', 'Probabilidade_Fogo', 'Classe_Risco', 'DSC_Soares', 'Depressao_Psicrometrica', 'Data_Atualizacao'],
+    aliases=['Municipio:', 'Risco de Fogo (%):', 'Classe:', 'DSC (Fator Soares):', 'Depressao Psicrometrica (C):', 'Ultima Atualizacao:'],
     localize=True, sticky=False, labels=True,
     style="background-color: #F0EFEF; border: 2px solid black; border-radius: 3px; box-shadow: 3px;"
 )
@@ -256,7 +273,7 @@ legenda_html = '''
     <i style="background: #E8A523; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">3. Moderado</span><br>
     <i style="background: #DE5C0B; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">4. Alto (Alerta)</span><br>
     <i style="background: #DE1010; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">5. Muito Alto</span><br>
-    <i style="background: #96002D; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">6. Critico</span><br>
+    <i style="background: #82001F; width: 14px; height: 14px; float: left; margin-right: 8px; border: 1px solid #777; margin-top: 4px;"></i> <span style="display:inline-block; margin-top:4px;">6. Critico</span><br>
     
     <hr style="margin: 10px 0; border-top: 1px solid #ccc;">
     
@@ -291,8 +308,9 @@ tabela_html = top_10_display[['Municipio', 'Risco (%)', 'Classe']].to_html(
 
 tabela_html = tabela_html.replace('text-align: right;', 'text-align: left;')
 tabela_html = tabela_html.replace('6. Critico', '<span style="color: #82001F; font-weight: bold; font-size: 1.1em;">6. Critico</span>')
-tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #B02719; font-weight: bold;">5. Muito Alto</span>')
+tabela_html = tabela_html.replace('5. Muito Alto', '<span style="color: #DE1010; font-weight: bold;">5. Muito Alto</span>')
 
+# Atualizacao do Corpo do HTML com as novas variaveis e formula simplificada
 pagina_completa = f"""
 <!DOCTYPE html>
 <html lang="pt-BR">
@@ -319,19 +337,19 @@ pagina_completa = f"""
                 <h6 class="fw-bold mb-3 text-dark">Top 10 Cidades em Risco</h6>
                 {tabela_html}
                 <hr>
-                <h6 class="fw-bold mb-3 text-dark">Modelo Matematico Simplificado</h6>
+                <h6 class="fw-bold mb-3 text-dark">Modelo Matematico Simplificado (Ockham)</h6>
                 <div class="bg-white p-3 border rounded shadow-sm mb-3">
                     <p class="mb-2 text-center" style="font-family: monospace; font-size: 1.1em; color: #333;">
-                        <strong>Z = 0.7707 - 0.1189(H) + 0.0082(DSC)</strong><br>
+                        <strong>Z = -7.3410 + 0.2060(ΔT) + 0.0017(DSC<sub>S</sub>)</strong><br>
                         <strong>P = 1 / (1 + e<sup>-Z</sup>)</strong>
                     </p>
                     <ul class="small text-muted mb-0 ps-3">
-                        <li><strong>H:</strong> Umidade Relativa as 13h (%)</li>
-                        <li><strong>DSC:</strong> Dias Sem Chuva (acumulado de dias consecutivos com precipitacao &le; 2.4 mm)</li>
+                        <li><strong>ΔT:</strong> Depressao Psicrometrica as 13h (Temp_Ar - Temp_Orvalho)</li>
+                        <li><strong>DSC<sub>S</sub>:</strong> Dias Sem Chuva (metodo de abatimento logistico de Soares)</li>
                         <li><strong>P:</strong> Probabilidade de Ignicao (%)</li>
                     </ul>
                 </div>
-                <p class="small text-muted mt-3">Metodologia: Equacao de Regressao Logistica treinada especificamente para o semiárido.<br><br><strong>Recomendado para uso tatico pelo Corpo de Bombeiros da Paraiba.</strong></p>
+                <p class="small text-muted mt-3">Metodologia: Equacao de Regressao Logistica treinada especificamente para as dinamicas termodinamicas do semiarido.<br><br><strong>Recomendado para uso tatico pelas forcas de Defesa Civil.</strong></p>
             </div>
             <div class="col-md-9 map-container">
                 {mapa_html}
